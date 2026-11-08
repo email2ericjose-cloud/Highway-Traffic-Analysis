@@ -1,0 +1,1798 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UAV-Based Vehicle Detection & Trajectory Analysis | Intelligent Transportation Systems</title>
+  
+  <!-- Modern Geometric Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            void: '#060A14',
+            surface: '#0B1327',
+            elevated: '#111C38',
+            glass: 'rgba(16, 24, 42, 0.65)',
+            'glass-border': 'rgba(255, 255, 255, 0.08)',
+            'glass-highlight': 'rgba(255, 255, 255, 0.18)',
+            accent: {
+              violet: '#8B5CF6',
+              sky: '#38BDF8',
+              emerald: '#10B981',
+              amber: '#F59E0B',
+              rose: '#F43F5E',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <style>
+    /* Liquid Glass & Specular Illumination System */
+    :root {
+      --mouse-x: 50%;
+      --mouse-y: 50%;
+    }
+
+    body {
+      background-color: #060A14;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(139, 92, 246, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 85% 20%, rgba(56, 189, 248, 0.10) 0%, transparent 40%),
+        radial-gradient(circle at 50% 85%, rgba(16, 185, 129, 0.06) 0%, transparent 50%),
+        linear-gradient(rgba(56, 189, 248, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56, 189, 248, 0.015) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 100% 100%, 48px 48px, 48px 48px;
+      color: #F8FAFC;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Core Liquid Glass Panel */
+    .liquid-glass {
+      background: linear-gradient(135deg, rgba(23, 34, 53, 0.60) 0%, rgba(13, 21, 38, 0.75) 100%);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-top: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6), inset 0 1px 1px 0 rgba(255, 255, 255, 0.12);
+      border-radius: 1.25rem;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .liquid-glass:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      border-top-color: rgba(255, 255, 255, 0.28);
+      box-shadow: 0 24px 50px -12px rgba(0, 0, 0, 0.75), inset 0 1px 2px 0 rgba(255, 255, 255, 0.18);
+      transform: translateY(-2px);
+    }
+
+    /* Elevated Glass for Modals, Dropdowns & Floating Toolbars */
+    .liquid-glass-elevated {
+      background: linear-gradient(145deg, rgba(28, 41, 65, 0.85) 0%, rgba(15, 24, 44, 0.92) 100%);
+      backdrop-filter: blur(28px) saturate(200%);
+      -webkit-backdrop-filter: blur(28px) saturate(200%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-top: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.85), inset 0 1px 2px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    /* Subtle Glass KPI Card with Internal Spotlight */
+    .liquid-kpi-card {
+      background: linear-gradient(135deg, rgba(21, 32, 51, 0.55) 0%, rgba(12, 19, 34, 0.70) 100%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-top: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.55), inset 0 1px 1px 0 rgba(255, 255, 255, 0.10);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.25s ease;
+    }
+
+    .liquid-kpi-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+    }
+
+    .liquid-kpi-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255, 255, 255, 0.18);
+      box-shadow: 0 18px 36px -10px rgba(0, 0, 0, 0.65), 0 0 20px -5px rgba(139, 92, 246, 0.15);
+    }
+
+    /* Liquid Nav Pills */
+    .nav-pill {
+      position: relative;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      color: #94A3B8;
+      border-bottom: 2px solid transparent;
+    }
+
+    .nav-pill:hover {
+      color: #F8FAFC;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .nav-pill.active {
+      color: #38BDF8;
+      background: linear-gradient(180deg, rgba(56, 189, 248, 0.12) 0%, rgba(56, 189, 248, 0.04) 100%);
+      border-bottom: 2px solid #38BDF8;
+      box-shadow: inset 0 -4px 12px -2px rgba(56, 189, 248, 0.2);
+    }
+
+    /* Radar Scanning Pulse Animation */
+    @keyframes radar-sweep {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .radar-sweep-anim {
+      animation: radar-sweep 4s linear infinite;
+    }
+
+    /* Tab Panes */
+    .tab-pane {
+      display: none;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .tab-pane.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Custom Glass Scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(6, 10, 20, 0.8);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Specular Text Shimmer */
+    .text-liquid-shimmer {
+      background: linear-gradient(135deg, #FFFFFF 20%, #CBD5E1 50%, #94A3B8 80%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Interactive Pipeline Flow Connector */
+    .pipeline-connector-active {
+      background: linear-gradient(90deg, #8B5CF6, #38BDF8, #10B981);
+      background-size: 200% 100%;
+      animation: gradient-flow 3s ease infinite;
+    }
+
+    @keyframes gradient-flow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+  </style>
+</head>
+<body class="font-sans antialiased text-slate-100 flex flex-col min-h-screen">
+
+  <!-- ===================================================================== -->
+  <!-- 1. TOP LIQUID GLASS NAVIGATION BAR                                   -->
+  <!-- ===================================================================== -->
+  <header class="sticky top-0 z-50 liquid-glass-elevated border-b border-white/10 px-4 lg:px-8 py-3 transition-all duration-300">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+      
+      <!-- Brand & Icon -->
+      <div class="flex items-center gap-3.5">
+        <div class="relative w-11 h-11 rounded-xl bg-gradient-to-tr from-purple-900/80 to-sky-900/80 border border-purple-500/30 flex items-center justify-center shadow-lg shadow-purple-950/40 overflow-hidden group">
+          <div class="absolute inset-0 bg-gradient-to-tr from-purple-500/20 to-sky-400/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <!-- UAV Radar reticle -->
+          <svg class="w-6 h-6 text-sky-400 relative z-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-opacity="0.3"></circle>
+            <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-opacity="0.6"></circle>
+            <line x1="12" y1="3" x2="12" y2="21" stroke="currentColor" stroke-opacity="0.4"></line>
+            <line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" stroke-opacity="0.4"></line>
+            <circle cx="12" cy="12" r="1.5" fill="currentColor"></circle>
+            <line x1="12" y1="12" x2="18.5" y2="6.5" stroke="#8B5CF6" stroke-width="2" class="radar-sweep-anim origin-center"></line>
+          </svg>
+        </div>
+
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base lg:text-lg font-extrabold tracking-tight text-liquid-shimmer">
+              UAV-Based Vehicle Detection &amp; Trajectory Analysis
+            </h1>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-gradient-to-r from-purple-500/20 to-sky-500/20 text-purple-300 border border-purple-400/30">
+              v2.0 Liquid Glass
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400 flex items-center gap-2">
+            <span>UAV Traffic Analytics</span>
+            <span class="text-slate-600">&bull;</span>
+            <span>Intelligent Transportation Systems</span>
+            <span class="text-slate-600">&bull;</span>
+            <span class="text-slate-400">Civil &amp; Geoinformatics Research</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Action Controls & Status -->
+      <div class="flex items-center gap-2.5 flex-wrap">
+        
+        <!-- Live Processing Status Pill -->
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 text-xs font-mono">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span class="font-semibold tracking-wide">601 Frames &bull; Calibrated</span>
+        </div>
+
+        <!-- Video Player Modal Button -->
+        <button onclick="openVideoModal()" class="px-3.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-white/10 hover:border-sky-400/40 text-slate-200 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition shadow-sm">
+          <i class="fa-solid fa-circle-play text-sky-400"></i>
+          <span>Annotated Video</span>
+        </button>
+
+        <!-- Pipeline Modal / Switch Button -->
+        <button onclick="switchTab('tab-pipeline')" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-lg shadow-purple-900/30">
+          <i class="fa-solid fa-play text-[11px]"></i>
+          <span>Run Automated Pipeline</span>
+        </button>
+
+        <!-- Export Data Dropdown -->
+        <div class="relative inline-block text-left" id="exportDropdownContainer">
+          <button onclick="toggleExportMenu()" class="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-download text-slate-400"></i>
+            <span>Export</span>
+            <i class="fa-solid fa-chevron-down text-[9px] text-slate-500"></i>
+          </button>
+          
+          <div id="exportMenu" class="hidden absolute right-0 mt-2 w-56 rounded-xl liquid-glass-elevated border border-white/15 p-2 shadow-2xl z-50">
+            <div class="text-[10px] font-mono uppercase text-slate-400 px-2 py-1 tracking-wider border-b border-white/10 mb-1">Research Artifacts</div>
+            <a href="../safety_analysis/comprehensive_safety_report.json" download class="flex items-center gap-2 px-2.5 py-1.5 text-xs text-slate-200 hover:bg-white/10 rounded-lg transition">
+              <i class="fa-solid fa-file-code text-purple-400"></i>
+              <span>Safety Report JSON</span>
+            </a>
+            <a href="../safety_analysis/ranked_collision_conflicts.csv" download class="flex items-center gap-2 px-2.5 py-1.5 text-xs text-slate-200 hover:bg-white/10 rounded-lg transition">
+              <i class="fa-solid fa-file-csv text-emerald-400"></i>
+              <span>Ranked Conflicts CSV</span>
+            </a>
+            <a href="../analysis/processed_trajectories_metric.csv" download class="flex items-center gap-2 px-2.5 py-1.5 text-xs text-slate-200 hover:bg-white/10 rounded-lg transition">
+              <i class="fa-solid fa-route text-sky-400"></i>
+              <span>Metric Trajectories CSV</span>
+            </a>
+            <a href="../calibration/calibration_config.json" download class="flex items-center gap-2 px-2.5 py-1.5 text-xs text-slate-200 hover:bg-white/10 rounded-lg transition">
+              <i class="fa-solid fa-compass-drafting text-amber-400"></i>
+              <span>Calibration Matrix JSON</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Classic Dashboard Switcher Button -->
+        <a href="index.html" class="px-2.5 py-1.5 rounded-lg bg-slate-800/40 hover:bg-slate-700/60 border border-white/10 text-slate-400 hover:text-slate-200 text-xs font-mono transition flex items-center gap-1.5" title="Switch to Classic HTML Dashboard">
+          <i class="fa-solid fa-clock-rotate-left text-[11px]"></i>
+          <span class="hidden sm:inline">Classic View</span>
+        </a>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- 2. TELEMETRY & DATASET HEADER STRIP                                   -->
+  <!-- ===================================================================== -->
+  <section class="max-w-7xl mx-auto w-full px-4 lg:px-8 pt-5">
+    <div class="liquid-glass p-4 flex flex-wrap items-center justify-between gap-4 border border-white/10">
+      
+      <!-- Video & Corridor Specs -->
+      <div class="flex items-center gap-4 flex-wrap">
+        <div class="flex items-center gap-2.5">
+          <span class="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-400/20 text-sky-400 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-video"></i>
+          </span>
+          <div>
+            <div class="text-[11px] font-mono uppercase text-slate-400 tracking-wider">Active Highway Dataset</div>
+            <div class="text-xs font-bold text-white flex items-center gap-2">
+              <span>National Highway 48</span>
+              <span class="px-1.5 py-0.2 rounded text-[9px] bg-slate-700 text-slate-300 font-mono">1608x908 @ 30 FPS</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="h-6 w-px bg-white/10 hidden md:block"></div>
+
+        <div class="text-xs space-y-0.5">
+          <div class="text-[10px] font-mono uppercase text-slate-400 tracking-wider">Corridor Geometry</div>
+          <div class="text-slate-200 font-medium">
+            <span class="text-sky-400 font-mono font-bold">160.0 m</span> Length &bull; 
+            <span class="text-purple-400 font-mono font-bold">3.5 m</span> Lane Baseline
+          </div>
+        </div>
+
+        <div class="h-6 w-px bg-white/10 hidden md:block"></div>
+
+        <div class="text-xs space-y-0.5">
+          <div class="text-[10px] font-mono uppercase text-slate-400 tracking-wider">Directional Split</div>
+          <div class="text-slate-200 font-medium">
+            <span class="text-indigo-400 font-mono font-bold">Westbound: 58.3%</span> (28 veh) &bull; 
+            <span class="text-sky-400 font-mono font-bold">Eastbound: 41.7%</span> (20 veh)
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action: Dataset Selector -->
+      <div class="flex items-center gap-3">
+        <label for="datasetSelect" class="text-xs font-mono text-slate-400">Dataset:</label>
+        <select id="datasetSelect" onchange="onDatasetChange(this.value)" class="bg-slate-900/80 border border-white/15 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-sky-400 font-mono">
+          <option value="NH48" selected>National Highway 48 (Processed &bull; 601 Frames)</option>
+          <option value="NH53">NH-53 Sample (Raw Footage &bull; Ready to Process)</option>
+        </select>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- 3. 8 LIQUID GLASS KPI METRIC CARDS                                   -->
+  <!-- ===================================================================== -->
+  <section class="max-w-7xl mx-auto w-full px-4 lg:px-8 pt-5">
+    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+      
+      <!-- Card 1: Active Vehicles -->
+      <div class="liquid-kpi-card p-3.5 rounded-xl border border-white/10 flex flex-col justify-between group">
+        <div>
+          <div class="flex items-center justify-between text-slate-400 mb-1">
+            <span class="text-[10px] font-mono font-semibold uppercase tracking-wider">Active Veh</span>
+            <i class="fa-solid fa-car text-sky-400 text-xs group-hover:scale-110 transition-transform"></i>
+          </div>
+          <div class="text-2xl font-extrabold font-mono text-white tracking-tight">48</div>
+        </div>
+        <div class="mt-2 pt-2 border-t border-white/5 flex items-center justify-between text-[10px]">
+          <span class="text-emerald-400 font-mono font-medium">160 total</span>
+          <span class="text-slate-500">64.6% car</span>
+        </div>
+      </div>
+
+      <!-- Card 2: Flow Rate (q) -->
+      <div class="liquid-kpi-card p-3.5 rounded-xl border border-white/10 flex flex-col justify-between group">
+        <div>
+          <div class="flex items-center justify-between text-slate-400 mb-1">
+            <span class="text-[10px] font-mono font-semibold uppercase tracking-wider">Flow (q)</span>
+            <i class="fa-solid fa-gauge-high text-sky-400 text-xs group-hover:scale-110 transition-transform"></i>
+          </div>
+          <div class="text-2xl font-extrabold font-mono text-sky-400 tracking-tight">8,626</div>
+        </div>
+        <div class="mt-2 pt-2 border-t border-white/5 flex items-center justify-between text-[10px]">
+          <span class="text-slate-300 font-mono">veh / hr</span>
+          <span class="text-slate-400">Total corridor</span>
+        </div>
+      </div>
+
+      <!-- Card 3: Density (k) -->
+      <div class="liquid-kpi-card p-3.5 rounded-xl border border-white/10 flex flex-col justify-between group">
+        <div>
+          <div class="flex items-center justify-between text-slate-400 mb-1">
+            <span class="text-[10px] font-mono font-semibold uppercase tracking-wider">Density (k)</span>
+            <i class="fa-solid fa-cubes-stacked text-indigo-400 text-xs group-hover:scale-110 transition-transform"></i>
+          </div>
+          <div class="text-2xl font-extrabold font-mono text-indigo-300 tracking-tight">175.1</div>
+        </div>
+        <div class="mt-2 pt-2 border-t border-white/5 flex items-center justify-between text-[10px]">
+          <span class="text-slate-300 font-mono">veh / km</span>
+          <span class="text-slate-400">28.0 veh/seg</span>
+        </div>
+      </div>
+
+      <!-- Card 4: Time-Mean Speed (ut) -->
+      <div class="liquid-kpi-card p-3.5 rounded-xl border border-white/10 flex flex-col justify-between group">
+        <div>
+          <div class="flex items-center justify-between text-slate-400 mb-1">
+            <span class="text-[10px] font-mono font-semibold uppercase tracking-wider">Time-Mean (u<sub>t</sub>)</span>
+            <i class="fa-solid fa-bolt text-amber-400 text-xs group-hover:scale-110 transition-transform"></i>
+          </div>
+          <div class="text-2xl font-extrabold font-mono text-amber-400 tracking-tight">26.6 <span class="text-xs font-normal text-slate-400">km/h</span></div>
+        </div>
+        <div class="mt-2 pt-2 border-t border-white/5 flex items-center justify-between text-[10px]">
+          <span class="text-slate-400">Arithmetic</span>
+          <span class="text-amber-400/80 font-mono">&sigma; = 5.71</span>
+        </div>
+      </div>
+
+      <!-- Card 5: Space-Mean Speed (us) -->
+      <div class="liquid-kpi-card p-3.5 rounded-xl border border-white/10 flex flex-col justify-between group">
+        <div>
+          <div class="flex items-center justify-between text-slate-400 mb-1">
+            <span class="text-[10px] font-mono font-semibold uppercase tracking-wider">Space-Mean (u<sub>s</sub>)</span>
+            <i class="fa-solid fa-road text-amber-400 text-xs group-hover:scale-110 transition-transform"></i>
+          </div>
+          <div class="text-2xl font-extrabold font-mono text-amber-300 tracking-tight">25.4 <span class="text-xs font-normal text-slate-400">km/h</span></div>
+        </div>
+        <div class="mt-2 pt-2 border-t border-white/5 flex items-center justify-between text-[10px]">
+          <span class="text-slate-400">Harmonic</span>
+          <span class="text-slate-400">q = k &bull; u<sub>s</sub></span>
+        </div>
+      </div>
+
+      <!-- Card 6: 85th % Speed (V85) -->
+      <div class="liquid-kpi-card p-3.5 rounded-xl border border-white/10 flex flex-col justify-between group">
+        <div>
+          <div class="flex items-center justify-between text-slate-400 mb-1">
+            <span class="text-[10px] font-mono font-semibold uppercase tracking-wider">85th % (V<sub>85</sub>)</span>
+            <i class="fa-solid fa-tachograph-digital text-purple-400 text-xs group-hover:scale-110 transition-transform"></i>
+          </div>
+          <div class="text-2xl font-extrabold font-mono text-purple-400 tracking-tight">31.7 <span class="text-xs font-normal text-slate-400">km/h</span></div>
+        </div>
+        <div class="mt-2 pt-2 border-t border-white/5 flex items-center justify-between text-[10px]">
+          <span class="text-purple-300">Design Speed</span>
+          <span class="text-slate-400">Operating</span>
+        </div>
+      </div>
+
+      <!-- Card 7: Critical TTC (<1.5s) -->
+      <div class="liquid-kpi-card p-3.5 rounded-xl border border-white/10 flex flex-col justify-between group">
+        <div>
+          <div class="flex items-center justify-between text-slate-400 mb-1">
+            <span class="text-[10px] font-mono font-semibold uppercase tracking-wider text-rose-300">Critical TTC</span>
+            <i class="fa-solid fa-triangle-exclamation text-rose-400 text-xs group-hover:scale-110 transition-transform"></i>
+          </div>
+          <div class="text-2xl font-extrabold font-mono text-rose-400 tracking-tight">2,391</div>
+        </div>
+        <div class="mt-2 pt-2 border-t border-white/5 flex items-center justify-between text-[10px]">
+          <span class="text-rose-400 font-mono font-semibold">&lt; 1.5s</span>
+          <span class="text-slate-400">Following</span>
+        </div>
+      </div>
+
+      <!-- Card 8: Critical PET (<=1.0s) -->
+      <div class="liquid-kpi-card p-3.5 rounded-xl border border-white/10 flex flex-col justify-between group">
+        <div>
+          <div class="flex items-center justify-between text-slate-400 mb-1">
+            <span class="text-[10px] font-mono font-semibold uppercase tracking-wider text-orange-300">Critical PET</span>
+            <i class="fa-solid fa-clock text-orange-400 text-xs group-hover:scale-110 transition-transform"></i>
+          </div>
+          <div class="text-2xl font-extrabold font-mono text-orange-400 tracking-tight">209</div>
+        </div>
+        <div class="mt-2 pt-2 border-t border-white/5 flex items-center justify-between text-[10px]">
+          <span class="text-orange-400 font-mono font-semibold">&le; 1.0s</span>
+          <span class="text-slate-400">Encroach</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- 4. NAVIGATION TAB STRIP (LIQUID GLASS PILL BAR)                       -->
+  <!-- ===================================================================== -->
+  <nav class="max-w-7xl mx-auto w-full px-4 lg:px-8 mt-6">
+    <div class="liquid-glass p-1.5 flex items-center space-x-1 sm:space-x-2 overflow-x-auto scrollbar-none border border-white/10">
+      
+      <button onclick="switchTab('tab-overview')" id="btn-tab-overview" class="nav-pill active px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-chart-pie text-xs"></i>
+        <span>Overview &amp; Summary</span>
+      </button>
+
+      <button onclick="switchTab('tab-flow')" id="btn-tab-flow" class="nav-pill px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-gauge text-xs"></i>
+        <span>Flow, Speed &amp; Density</span>
+      </button>
+
+      <button onclick="switchTab('tab-safety')" id="btn-tab-safety" class="nav-pill px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-shield-halved text-xs"></i>
+        <span>Surrogate Safety (TTC / PET)</span>
+      </button>
+
+      <button onclick="switchTab('tab-crash')" id="btn-tab-crash" class="nav-pill px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-car-burst text-xs"></i>
+        <span>Crash Prediction &amp; Ranking</span>
+      </button>
+
+      <button onclick="switchTab('tab-corridor')" id="btn-tab-corridor" class="nav-pill px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-map-location-dot text-xs"></i>
+        <span>Corridor &amp; Trajectories</span>
+      </button>
+
+      <button onclick="switchTab('tab-pipeline')" id="btn-tab-pipeline" class="nav-pill px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-gears text-xs text-purple-400"></i>
+        <span class="text-purple-300">Automated Pipeline</span>
+      </button>
+
+    </div>
+  </nav>
+
+  <!-- ===================================================================== -->
+  <!-- 5. TAB PANES CONTENT CONTAINER                                        -->
+  <!-- ===================================================================== -->
+  <main class="max-w-7xl mx-auto w-full px-4 lg:px-8 py-6 flex-1">
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- TAB 1: OVERVIEW & SUMMARY                                         -->
+    <!-- ----------------------------------------------------------------- -->
+    <div id="tab-overview" class="tab-pane active space-y-6">
+      
+      <!-- Top 3 Analytical Summary Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Summary Card 1: Traffic Fleet Volume -->
+        <div class="liquid-glass p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-bold text-sm text-white flex items-center gap-2">
+                <i class="fa-solid fa-cars text-sky-400"></i>
+                <span>Traffic Volume &amp; Classification</span>
+              </h3>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-sky-950/80 text-sky-400 border border-sky-800/60">Fleet Share</span>
+            </div>
+            <p class="text-xs text-slate-400 mb-4">Empirical modal breakdown of active moving vehicles captured along the highway corridor.</p>
+            
+            <div class="space-y-2 text-xs font-mono">
+              <div class="flex justify-between items-center p-2 rounded-lg bg-slate-900/60 border border-white/5">
+                <span class="text-slate-300 flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span>Passenger Cars:</span>
+                <span class="font-bold text-white">31 <span class="text-slate-400 font-normal">(64.6%)</span></span>
+              </div>
+              <div class="flex justify-between items-center p-2 rounded-lg bg-slate-900/60 border border-white/5">
+                <span class="text-slate-300 flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-indigo-400"></span>Vans / LCVs:</span>
+                <span class="font-bold text-white">8 <span class="text-slate-400 font-normal">(16.7%)</span></span>
+              </div>
+              <div class="flex justify-between items-center p-2 rounded-lg bg-slate-900/60 border border-white/5">
+                <span class="text-slate-300 flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-purple-400"></span>Buses:</span>
+                <span class="font-bold text-white">7 <span class="text-slate-400 font-normal">(14.6%)</span></span>
+              </div>
+              <div class="flex justify-between items-center p-2 rounded-lg bg-slate-900/60 border border-white/5">
+                <span class="text-slate-300 flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-orange-400"></span>Heavy Trucks:</span>
+                <span class="font-bold text-white">1 <span class="text-slate-400 font-normal">(2.1%)</span></span>
+              </div>
+              <div class="flex justify-between items-center p-2 rounded-lg bg-slate-900/60 border border-white/5">
+                <span class="text-slate-300 flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>Two-Wheelers:</span>
+                <span class="font-bold text-white">1 <span class="text-slate-400 font-normal">(2.1%)</span></span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs text-sky-400 font-semibold font-mono">
+            <span>Total Active Fleet:</span>
+            <span>48 veh (8,625.6 veh/h)</span>
+          </div>
+        </div>
+
+        <!-- Summary Card 2: Operating Speed & Flow Dynamics -->
+        <div class="liquid-glass p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-bold text-sm text-white flex items-center gap-2">
+                <i class="fa-solid fa-gauge-simple-high text-amber-400"></i>
+                <span>Operating Speed &amp; Flow Dynamics</span>
+              </h3>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-950/80 text-amber-400 border border-amber-800/60">Kinematics</span>
+            </div>
+            <p class="text-xs text-slate-400 mb-4">Space and time velocity parameters computed using calibrated planar homography.</p>
+            
+            <div class="space-y-2 text-xs font-mono">
+              <div class="flex justify-between p-2 rounded-lg bg-slate-900/60 border border-white/5">
+                <span class="text-slate-300">Time-Mean Speed (u<sub>t</sub>):</span>
+                <span class="font-bold text-amber-400">26.59 km/h</span>
+              </div>
+              <div class="flex justify-between p-2 rounded-lg bg-slate-900/60 border border-white/5">
+                <span class="text-slate-300">Space-Mean Speed (u<sub>s</sub>):</span>
+                <span class="font-bold text-amber-300">25.44 km/h</span>
+              </div>
+              <div class="flex justify-between p-2 rounded-lg bg-slate-900/60 border border-white/5">
+                <span class="text-slate-300">85th Percentile Speed (V<sub>85</sub>):</span>
+                <span class="font-bold text-purple-400">31.67 km/h</span>
+              </div>
+              <div class="flex justify-between p-2 rounded-lg bg-slate-900/60 border border-white/5">
+                <span class="text-slate-300">Speed Standard Deviation (&sigma;):</span>
+                <span class="font-bold text-white">5.71 km/h</span>
+              </div>
+              <div class="flex justify-between p-2 rounded-lg bg-slate-900/60 border border-white/5">
+                <span class="text-slate-300">Corridor Traffic Density (k):</span>
+                <span class="font-bold text-emerald-400">175.1 veh/km</span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs text-amber-400 font-semibold font-mono">
+            <span>Directional Split:</span>
+            <span>West 58.3% &bull; East 41.7%</span>
+          </div>
+        </div>
+
+        <!-- Summary Card 3: Surrogate Safety & Collision Risk -->
+        <div class="liquid-glass p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-bold text-sm text-white flex items-center gap-2">
+                <i class="fa-solid fa-shield-halved text-rose-400"></i>
+                <span>Surrogate Safety &amp; Conflict Risk</span>
+              </h3>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-rose-950/80 text-rose-400 border border-rose-800/60">Risk Evaluated</span>
+            </div>
+            <p class="text-xs text-slate-400 mb-4">Continuous microscopic conflict events evaluated from vehicular trajectory tracking.</p>
+            
+            <div class="space-y-2 text-xs font-mono">
+              <div class="flex justify-between p-2 rounded-lg bg-rose-950/40 border border-rose-500/20">
+                <span class="text-slate-300">Critical TTC (&lt; 1.5s):</span>
+                <span class="font-bold text-rose-400">2,391 instances</span>
+              </div>
+              <div class="flex justify-between p-2 rounded-lg bg-orange-950/40 border border-orange-500/20">
+                <span class="text-slate-300">Critical PET (&le; 1.0s):</span>
+                <span class="font-bold text-orange-400">209 instances</span>
+              </div>
+              <div class="flex justify-between p-2 rounded-lg bg-rose-950/30 border border-rose-500/20">
+                <span class="text-slate-300">Emergency Braking (DRAC &gt; 3.4):</span>
+                <span class="font-bold text-rose-300">1,169 instances</span>
+              </div>
+              <div class="flex justify-between p-2 rounded-lg bg-slate-900/60 border border-white/5">
+                <span class="text-slate-300">Evaluated Conflict Pairs:</span>
+                <span class="font-bold text-white">195 pairs</span>
+              </div>
+              <div class="flex justify-between p-2 rounded-lg bg-slate-900/60 border border-white/5">
+                <span class="text-slate-300">Tier 1 High-Risk Pairs:</span>
+                <span class="font-bold text-rose-400">147 pairs</span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs text-rose-400 font-semibold font-mono">
+            <span>Primary Hotspot Zones:</span>
+            <span>X &in; [0, 20m] &amp; [80, 100m]</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- High-Resolution Visualizations Row -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Space-Time Trajectory Profile Card -->
+        <div class="liquid-glass p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-bold text-sm text-white flex items-center gap-2">
+                <i class="fa-solid fa-chart-line text-indigo-400"></i>
+                <span>Space-Time (x-t) Trajectory Profiles</span>
+              </h3>
+              <button onclick="openImageModal('../analysis/space_time_diagram.png', 'Space-Time Trajectory Profiles')" class="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1 font-mono">
+                <i class="fa-solid fa-expand"></i> Fullscreen
+              </button>
+            </div>
+            <p class="text-xs text-slate-400 mb-3">Vehicle trajectories moving along the 160m corridor over time. Positive slopes represent Eastbound; negative represent Westbound.</p>
+          </div>
+          <div class="rounded-xl overflow-hidden border border-white/10 bg-slate-950/60 group relative cursor-pointer" onclick="openImageModal('../analysis/space_time_diagram.png', 'Space-Time Trajectory Profiles')">
+            <img src="../analysis/space_time_diagram.png" alt="Space-Time Diagram" class="w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
+              <span class="text-xs font-mono text-white flex items-center gap-1.5"><i class="fa-solid fa-magnifying-glass-plus"></i> Click to Zoom High-Res</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Spatial Conflict Hotspots Card -->
+        <div class="liquid-glass p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-bold text-sm text-white flex items-center gap-2">
+                <i class="fa-solid fa-map-pin text-rose-400"></i>
+                <span>Spatial Conflict Hotspots &amp; Crash Ranking</span>
+              </h3>
+              <button onclick="openImageModal('../safety_analysis/crash_ranking_and_hotspots.png', 'Spatial Conflict Hotspots')" class="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1 font-mono">
+                <i class="fa-solid fa-expand"></i> Fullscreen
+              </button>
+            </div>
+            <p class="text-xs text-slate-400 mb-3">Spatial density mapping of conflict events identifying high-risk tailgating and emergency deceleration zones.</p>
+          </div>
+          <div class="rounded-xl overflow-hidden border border-white/10 bg-slate-950/60 group relative cursor-pointer" onclick="openImageModal('../safety_analysis/crash_ranking_and_hotspots.png', 'Spatial Conflict Hotspots')">
+            <img src="../safety_analysis/crash_ranking_and_hotspots.png" alt="Spatial Hotspots" class="w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
+              <span class="text-xs font-mono text-white flex items-center gap-1.5"><i class="fa-solid fa-magnifying-glass-plus"></i> Click to Zoom High-Res</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- TAB 2: FLOW, SPEED & DENSITY                                      -->
+    <!-- ----------------------------------------------------------------- -->
+    <div id="tab-flow" class="tab-pane space-y-6">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Interactive Fleet Composition Chart -->
+        <div class="liquid-glass p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-bold text-sm text-white flex items-center gap-2">
+                <i class="fa-solid fa-pie-chart text-sky-400"></i>
+                <span>Traffic Fleet Composition</span>
+              </h3>
+              <span class="text-[10px] font-mono text-slate-400">5 Classes</span>
+            </div>
+            <div class="h-64 flex items-center justify-center relative">
+              <canvas id="chart-composition"></canvas>
+            </div>
+          </div>
+          <div class="grid grid-cols-3 gap-2 mt-4 text-center text-xs font-mono">
+            <div class="p-2 bg-slate-900/60 rounded-lg border border-white/5">
+              <div class="text-slate-400 text-[10px]">Cars</div>
+              <div class="font-bold text-sky-400">31 (64.6%)</div>
+            </div>
+            <div class="p-2 bg-slate-900/60 rounded-lg border border-white/5">
+              <div class="text-slate-400 text-[10px]">Vans</div>
+              <div class="font-bold text-indigo-400">8 (16.7%)</div>
+            </div>
+            <div class="p-2 bg-slate-900/60 rounded-lg border border-white/5">
+              <div class="text-slate-400 text-[10px]">Buses</div>
+              <div class="font-bold text-purple-400">7 (14.6%)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mean Speed by Class Bar Chart -->
+        <div class="liquid-glass p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-bold text-sm text-white flex items-center gap-2">
+                <i class="fa-solid fa-gauge text-amber-400"></i>
+                <span>Mean Speed by Vehicle Class</span>
+              </h3>
+              <span class="text-[10px] font-mono text-amber-400">km/h</span>
+            </div>
+            <div class="h-64 relative">
+              <canvas id="chart-speeds"></canvas>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2 mt-4 text-center text-xs font-mono text-slate-300">
+            <div class="p-2 bg-slate-900/60 rounded-lg border border-white/5">
+              <span class="text-slate-400">Passenger Cars:</span> <strong class="text-amber-400">28.4 km/h</strong>
+            </div>
+            <div class="p-2 bg-slate-900/60 rounded-lg border border-white/5">
+              <span class="text-slate-400">Heavy Fleet:</span> <strong class="text-amber-300">22.2 - 23.7 km/h</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Traffic Flow Fundamental Parameters -->
+        <div class="liquid-glass p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-bold text-sm text-white flex items-center gap-2">
+                <i class="fa-solid fa-calculator text-purple-400"></i>
+                <span>Macroscopic Fundamental Parameters</span>
+              </h3>
+              <span class="text-[10px] font-mono text-emerald-400">Validated</span>
+            </div>
+            <div class="space-y-2.5 text-xs font-mono">
+              <div class="flex justify-between p-2 rounded-lg bg-slate-900/60 border border-white/5">
+                <span class="text-slate-400">Total Hourly Flow (q):</span>
+                <span class="font-bold text-white">8,625.6 veh/h</span>
+              </div>
+              <div class="flex justify-between p-2 rounded-lg bg-slate-900/60 border border-white/5">
+                <span class="text-slate-400">Eastbound Flow (q<sub>E</sub>):</span>
+                <span class="font-bold text-sky-400">3,594.0 veh/h</span>
+              </div>
+              <div class="flex justify-between p-2 rounded-lg bg-slate-900/60 border border-white/5">
+                <span class="text-slate-400">Westbound Flow (q<sub>W</sub>):</span>
+                <span class="font-bold text-indigo-400">5,031.6 veh/h</span>
+              </div>
+              <div class="flex justify-between p-2 rounded-lg bg-slate-900/60 border border-white/5">
+                <span class="text-slate-400">Corridor Traffic Density (k):</span>
+                <span class="font-bold text-emerald-400">175.1 veh/km</span>
+              </div>
+              <div class="flex justify-between p-2 rounded-lg bg-slate-900/60 border border-white/5">
+                <span class="text-slate-400">Space-Mean Speed (u<sub>s</sub>):</span>
+                <span class="font-bold text-amber-400">25.44 km/h</span>
+              </div>
+              <div class="flex justify-between p-2 rounded-lg bg-slate-900/60 border border-white/5">
+                <span class="text-slate-400">85th Percentile Speed (V<sub>85</sub>):</span>
+                <span class="font-bold text-purple-400">31.67 km/h</span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 p-2.5 bg-purple-950/30 rounded-lg border border-purple-500/20 text-[11px] text-purple-300 font-mono">
+            Speed Variance: &sigma;&sup2; = 32.6 (km/h)&sup2; &bull; &sigma; = 5.71 km/h
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Speed Distribution & Headway Figures -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <div class="liquid-glass p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold text-sm text-white">Vehicle Speed Frequency Distribution</h3>
+            <button onclick="openImageModal('../analysis/preliminary_speed_distribution.png', 'Speed Distribution')" class="text-xs text-sky-400 hover:text-sky-300 font-mono">
+              <i class="fa-solid fa-expand"></i> Zoom
+            </button>
+          </div>
+          <div class="rounded-xl overflow-hidden border border-white/10 bg-slate-950/60 cursor-pointer" onclick="openImageModal('../analysis/preliminary_speed_distribution.png', 'Speed Distribution')">
+            <img src="../analysis/preliminary_speed_distribution.png" alt="Speed Distribution" class="w-full object-cover">
+          </div>
+        </div>
+
+        <div class="liquid-glass p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold text-sm text-white">Distance &amp; Time Headway Distributions</h3>
+            <button onclick="openImageModal('../safety_analysis/headway_distribution.png', 'Headway Distribution')" class="text-xs text-sky-400 hover:text-sky-300 font-mono">
+              <i class="fa-solid fa-expand"></i> Zoom
+            </button>
+          </div>
+          <div class="rounded-xl overflow-hidden border border-white/10 bg-slate-950/60 cursor-pointer" onclick="openImageModal('../safety_analysis/headway_distribution.png', 'Headway Distribution')">
+            <img src="../safety_analysis/headway_distribution.png" alt="Headway Distribution" class="w-full object-cover">
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- TAB 3: SURROGATE SAFETY MEASURES (SSMs)                            -->
+    <!-- ----------------------------------------------------------------- -->
+    <div id="tab-safety" class="tab-pane space-y-6">
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- TTC Metric Card -->
+        <div class="liquid-glass p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-bold text-sm text-white flex items-center gap-2">
+                <i class="fa-solid fa-stopwatch text-rose-400"></i>
+                <span>Time-To-Collision (TTC)</span>
+              </h3>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-rose-950/80 text-rose-400 border border-rose-800/60">Following</span>
+            </div>
+            <p class="text-xs text-slate-400 mb-4">Measures time remaining before rear-end collision under prevailing speeds: TTC = &Delta;d / &Delta;v.</p>
+            
+            <div class="space-y-2 text-xs font-mono">
+              <div class="flex justify-between p-2 rounded-lg bg-rose-950/40 border border-rose-500/30">
+                <span class="text-slate-300">Critical (&lt; 1.5s):</span>
+                <span class="font-bold text-rose-400">2,391 instances</span>
+              </div>
+              <div class="flex justify-between p-2 rounded-lg bg-amber-950/40 border border-amber-500/20">
+                <span class="text-slate-300">Severe (1.5s - 2.5s):</span>
+                <span class="font-bold text-amber-400">380 instances</span>
+              </div>
+              <div class="flex justify-between p-2 rounded-lg bg-slate-900/60 border border-white/5">
+                <span class="text-slate-300">Potential (2.5s - 4.0s):</span>
+                <span class="font-bold text-slate-300">475 instances</span>
+              </div>
+              <div class="flex justify-between p-2 rounded-lg bg-slate-900/60 border border-white/5">
+                <span class="text-slate-300">Mean Critical TTC:</span>
+                <span class="font-bold text-white">0.43 seconds</span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/10 text-xs font-mono text-rose-400 font-semibold">
+            Total Following Conflicts: 3,668
+          </div>
+        </div>
+
+        <!-- PET Metric Card -->
+        <div class="liquid-glass p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-bold text-sm text-white flex items-center gap-2">
+                <i class="fa-solid fa-clock-rotate-left text-teal-400"></i>
+                <span>Post-Encroachment Time (PET)</span>
+              </h3>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-teal-950/80 text-teal-400 border border-teal-800/60">Encroachment</span>
+            </div>
+            <p class="text-xs text-slate-400 mb-4">Time gap between preceding vehicle exiting a cell and trailing vehicle entering it.</p>
+            
+            <div class="space-y-2 text-xs font-mono">
+              <div class="flex justify-between p-2 rounded-lg bg-rose-950/40 border border-rose-500/30">
+                <span class="text-slate-300">Critical (&le; 1.0s):</span>
+                <span class="font-bold text-rose-400">209 instances</span>
+              </div>
+              <div class="flex justify-between p-2 rounded-lg bg-amber-950/40 border border-amber-500/20">
+                <span class="text-slate-300">Severe (1.0s - 2.0s):</span>
+                <span class="font-bold text-amber-400">84 instances</span>
+              </div>
+              <div class="flex justify-between p-2 rounded-lg bg-slate-900/60 border border-white/5">
+                <span class="text-slate-300">Moderate (2.0s - 4.0s):</span>
+                <span class="font-bold text-slate-300">120 instances</span>
+              </div>
+              <div class="flex justify-between p-2 rounded-lg bg-slate-900/60 border border-white/5">
+                <span class="text-slate-300">Median Observed PET:</span>
+                <span class="font-bold text-white">0.97 seconds</span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/10 text-xs font-mono text-teal-400 font-semibold">
+            Total Lateral Encroachments: 413
+          </div>
+        </div>
+
+        <!-- DRAC Metric Card -->
+        <div class="liquid-glass p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-bold text-sm text-white flex items-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation text-orange-400"></i>
+                <span>Deceleration Demand (DRAC)</span>
+              </h3>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-orange-950/80 text-orange-400 border border-orange-800/60">Braking</span>
+            </div>
+            <p class="text-xs text-slate-400 mb-4">Deceleration rate required to prevent collision: DRAC = (&Delta;v)&sup2; / (2 &bull; &Delta;d).</p>
+            
+            <div class="space-y-2 text-xs font-mono">
+              <div class="flex justify-between p-2 rounded-lg bg-rose-950/40 border border-rose-500/30">
+                <span class="text-slate-300">Emergency (&gt; 3.4 m/s&sup2;):</span>
+                <span class="font-bold text-rose-400">1,169 instances</span>
+              </div>
+              <div class="flex justify-between p-2 rounded-lg bg-amber-950/40 border border-amber-500/20">
+                <span class="text-slate-300">High (2.0 - 3.4 m/s&sup2;):</span>
+                <span class="font-bold text-amber-400">542 instances</span>
+              </div>
+              <div class="flex justify-between p-2 rounded-lg bg-slate-900/60 border border-white/5">
+                <span class="text-slate-300">Normal (&lt; 2.0 m/s&sup2;):</span>
+                <span class="font-bold text-slate-300">1,957 instances</span>
+              </div>
+              <div class="flex justify-between p-2 rounded-lg bg-slate-900/60 border border-white/5">
+                <span class="text-slate-300">Peak Observed DRAC:</span>
+                <span class="font-bold text-rose-400 font-mono">25.5 m/s&sup2;</span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/10 text-xs font-mono text-orange-400 font-semibold">
+            Emergency Braking Share: 31.9%
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TTC & PET Histograms -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <div class="liquid-glass p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold text-sm text-white">TTC Distribution (1.5s Critical Threshold)</h3>
+            <button onclick="openImageModal('../safety_analysis/ttc_distribution.png', 'TTC Distribution')" class="text-xs text-sky-400 hover:text-sky-300 font-mono">
+              <i class="fa-solid fa-expand"></i> Zoom
+            </button>
+          </div>
+          <div class="rounded-xl overflow-hidden border border-white/10 bg-slate-950/60 cursor-pointer" onclick="openImageModal('../safety_analysis/ttc_distribution.png', 'TTC Distribution')">
+            <img src="../safety_analysis/ttc_distribution.png" alt="TTC Distribution" class="w-full object-cover">
+          </div>
+        </div>
+
+        <div class="liquid-glass p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold text-sm text-white">PET Distribution (1.0s Encroachment Threshold)</h3>
+            <button onclick="openImageModal('../safety_analysis/pet_distribution.png', 'PET Distribution')" class="text-xs text-sky-400 hover:text-sky-300 font-mono">
+              <i class="fa-solid fa-expand"></i> Zoom
+            </button>
+          </div>
+          <div class="rounded-xl overflow-hidden border border-white/10 bg-slate-950/60 cursor-pointer" onclick="openImageModal('../safety_analysis/pet_distribution.png', 'PET Distribution')">
+            <img src="../safety_analysis/pet_distribution.png" alt="PET Distribution" class="w-full object-cover">
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- TAB 4: CRASH PREDICTION & RISK RANKING                            -->
+    <!-- ----------------------------------------------------------------- -->
+    <div id="tab-crash" class="tab-pane space-y-6">
+      
+      <!-- Top Spatial Hotspots Visual & Risk Breakdown -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <div class="lg:col-span-2 liquid-glass p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold text-sm text-white flex items-center gap-2">
+              <i class="fa-solid fa-map-location-dot text-indigo-400"></i>
+              <span>Spatial Conflict Hotspots Map &amp; Severity Ranking</span>
+            </h3>
+            <button onclick="openImageModal('../safety_analysis/crash_ranking_and_hotspots.png', 'Hotspots and Ranking')" class="text-xs text-sky-400 hover:text-sky-300 font-mono">
+              <i class="fa-solid fa-expand"></i> Zoom
+            </button>
+          </div>
+          <div class="rounded-xl overflow-hidden border border-white/10 bg-slate-950/60 cursor-pointer" onclick="openImageModal('../safety_analysis/crash_ranking_and_hotspots.png', 'Hotspots and Ranking')">
+            <img src="../safety_analysis/crash_ranking_and_hotspots.png" alt="Spatial Hotspots" class="w-full object-cover">
+          </div>
+        </div>
+
+        <!-- Risk Tier Breakdown & Hotspots List -->
+        <div class="liquid-glass p-5 flex flex-col justify-between">
+          <div>
+            <h3 class="font-bold text-sm text-white mb-2 flex items-center gap-2">
+              <i class="fa-solid fa-shield-virus text-rose-400"></i>
+              <span>Risk Tier Distribution</span>
+            </h3>
+            <p class="text-xs text-slate-400 mb-4">Conflict pairs categorized by surrogate crash probability score.</p>
+            
+            <div class="space-y-2.5 text-xs font-mono">
+              <div class="p-2.5 rounded-lg bg-rose-950/40 border border-rose-500/30 flex justify-between items-center">
+                <div>
+                  <div class="font-bold text-rose-400">Tier 1: High / Critical</div>
+                  <div class="text-[10px] text-slate-400">TTC &lt; 1.5s &amp; DRAC &gt; 3.4</div>
+                </div>
+                <div class="text-lg font-bold text-rose-300">147 <span class="text-xs font-normal text-slate-400">(75.4%)</span></div>
+              </div>
+
+              <div class="p-2.5 rounded-lg bg-amber-950/40 border border-amber-500/30 flex justify-between items-center">
+                <div>
+                  <div class="font-bold text-amber-400">Tier 2: Moderate Risk</div>
+                  <div class="text-[10px] text-slate-400">1.5s &le; TTC &lt; 2.5s</div>
+                </div>
+                <div class="text-lg font-bold text-amber-300">21 <span class="text-xs font-normal text-slate-400">(10.8%)</span></div>
+              </div>
+
+              <div class="p-2.5 rounded-lg bg-slate-900/60 border border-white/5 flex justify-between items-center">
+                <div>
+                  <div class="font-bold text-slate-300">Tier 3: Low Risk</div>
+                  <div class="text-[10px] text-slate-400">TTC &ge; 2.5s</div>
+                </div>
+                <div class="text-lg font-bold text-slate-300">27 <span class="text-xs font-normal text-slate-400">(13.8%)</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-white/10 text-xs font-mono text-slate-400">
+            Total Evaluated Pairs: <strong class="text-white">195</strong>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Interactive Ranked Conflicts Table -->
+      <div class="liquid-glass p-5">
+        
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+          <div>
+            <h3 class="font-bold text-sm text-white flex items-center gap-2">
+              <i class="fa-solid fa-ranking-star text-amber-400"></i>
+              <span>Evaluated Collision Conflict Pairs (195 Evaluated Pairs)</span>
+            </h3>
+            <p class="text-xs text-slate-400">Interactive sorting and filtering of microscopic collision risks ranked by composite severity score.</p>
+          </div>
+
+          <!-- Table Controls: Search & Filters -->
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <div class="relative">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-400"></i>
+              <input type="text" id="conflictSearchInput" onkeyup="filterConflictsTable()" placeholder="Search ID, Class, Tier..." class="bg-slate-900/90 border border-white/15 rounded-lg pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-400 w-44 sm:w-56 font-mono">
+            </div>
+
+            <select id="tierFilterSelect" onchange="filterConflictsTable()" class="bg-slate-900/90 border border-white/15 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-sky-400 font-mono">
+              <option value="ALL">All Tiers (195)</option>
+              <option value="Tier 1">Tier 1 Critical (147)</option>
+              <option value="Tier 2">Tier 2 Moderate (21)</option>
+              <option value="Tier 3">Tier 3 Low (27)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Scrollable Table -->
+        <div class="overflow-x-auto rounded-xl border border-white/10">
+          <table class="w-full text-left text-xs font-mono" id="conflictsTable">
+            <thead class="bg-slate-950/80 text-slate-400 uppercase text-[10px] tracking-wider border-b border-white/10">
+              <tr>
+                <th class="py-3 px-3">Rank</th>
+                <th class="py-3 px-3">Follower</th>
+                <th class="py-3 px-3">Leader</th>
+                <th class="py-3 px-3">Direction</th>
+                <th class="py-3 px-3">Min TTC</th>
+                <th class="py-3 px-3">Max DRAC</th>
+                <th class="py-3 px-3">Closing Speed</th>
+                <th class="py-3 px-3">Location X</th>
+                <th class="py-3 px-3">Severity</th>
+                <th class="py-3 px-3">Risk Tier</th>
+              </tr>
+            </thead>
+            <tbody id="conflictsTableBody" class="divide-y divide-white/5 text-slate-200">
+              <!-- Dynamically populated via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table Pagination Controls -->
+        <div class="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs font-mono text-slate-400">
+          <div id="tableInfo">Showing 1 to 10 of 195 entries</div>
+          <div class="flex items-center gap-1.5">
+            <button onclick="changePage(-1)" id="btnPrevPage" class="px-3 py-1.5 rounded-lg bg-slate-800 border border-white/10 hover:bg-slate-700 text-white disabled:opacity-40 disabled:cursor-not-allowed">
+              <i class="fa-solid fa-chevron-left text-[10px]"></i> Prev
+            </button>
+            <span id="pageIndicator" class="px-3 py-1.5 text-white font-bold">1 / 20</span>
+            <button onclick="changePage(1)" id="btnNextPage" class="px-3 py-1.5 rounded-lg bg-slate-800 border border-white/10 hover:bg-slate-700 text-white disabled:opacity-40 disabled:cursor-not-allowed">
+              Next <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- TAB 5: CORRIDOR & TRAJECTORIES                                    -->
+    <!-- ----------------------------------------------------------------- -->
+    <div id="tab-corridor" class="tab-pane space-y-6">
+      
+      <!-- Video Frame & Bird's Eye View -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <div class="liquid-glass p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold text-sm text-white flex items-center gap-2">
+              <i class="fa-solid fa-camera text-indigo-400"></i>
+              <span>Corridor Boundary &amp; Road Coordinates</span>
+            </h3>
+            <button onclick="openImageModal('../calibration/calibration_overlay.png', 'Road Coordinates Overlay')" class="text-xs text-sky-400 hover:text-sky-300 font-mono">
+              <i class="fa-solid fa-expand"></i> Zoom
+            </button>
+          </div>
+          <p class="text-xs text-slate-400 mb-3">Reference UAV video frame highlighting quadrilateral highway road-plane boundaries.</p>
+          <div class="rounded-xl overflow-hidden border border-white/10 bg-black cursor-pointer" onclick="openImageModal('../calibration/calibration_overlay.png', 'Road Coordinates Overlay')">
+            <img src="../calibration/calibration_overlay.png" alt="Calibration Overlay" class="w-full object-cover">
+          </div>
+        </div>
+
+        <div class="liquid-glass p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold text-sm text-white flex items-center gap-2">
+              <i class="fa-solid fa-crosshairs text-emerald-400"></i>
+              <span>Ortho-Rectified Bird's-Eye View</span>
+            </h3>
+            <button onclick="openImageModal('../calibration/bird_eye_view.png', 'Bird\'s Eye View')" class="text-xs text-sky-400 hover:text-sky-300 font-mono">
+              <i class="fa-solid fa-expand"></i> Zoom
+            </button>
+          </div>
+          <p class="text-xs text-slate-400 mb-3">Planar top-down orthogonal highway projection displaying 10-meter metric grid intervals.</p>
+          <div class="rounded-xl overflow-hidden border border-white/10 bg-black cursor-pointer" onclick="openImageModal('../calibration/bird_eye_view.png', 'Bird\'s Eye View')">
+            <img src="../calibration/bird_eye_view.png" alt="Bird's Eye View" class="w-full object-cover">
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Homography Matrix & Geometric Details -->
+      <div class="liquid-glass p-5">
+        <h3 class="font-bold text-sm text-white mb-3 flex items-center gap-2">
+          <i class="fa-solid fa-compass-drafting text-purple-400"></i>
+          <span>Planar Homography Transformation Matrix (H)</span>
+        </h3>
+        <p class="text-xs text-slate-400 mb-4">Transforms 2D image coordinates (u, v) into planar real-world metric highway space (X, Y) via perspective projection.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-xs">
+          
+          <div class="p-3.5 bg-slate-900/70 rounded-xl border border-white/10">
+            <div class="text-slate-400 text-[10px] uppercase tracking-wider mb-2">Source Pixel Coordinates (Quadrilateral)</div>
+            <div class="space-y-1 text-slate-300">
+              <div>P1: (400.0, 466.0) px</div>
+              <div>P2: (1000.0, 469.0) px</div>
+              <div>P3: (1000.0, 502.0) px</div>
+              <div>P4: (400.0, 499.0) px</div>
+            </div>
+          </div>
+
+          <div class="p-3.5 bg-slate-900/70 rounded-xl border border-white/10">
+            <div class="text-slate-400 text-[10px] uppercase tracking-wider mb-2">Metric Destination Coordinates</div>
+            <div class="space-y-1 text-slate-300">
+              <div>P1': (0.0 m, 0.0 m)</div>
+              <div>P2': (60.0 m, 0.0 m)</div>
+              <div>P3': (60.0 m, 3.5 m)</div>
+              <div>P4': (0.0 m, 3.5 m)</div>
+            </div>
+          </div>
+
+          <div class="p-3.5 bg-slate-900/70 rounded-xl border border-white/10">
+            <div class="text-slate-400 text-[10px] uppercase tracking-wider mb-2">Homography Matrix H [3x3]</div>
+            <div class="space-y-1 text-purple-300 text-[11px]">
+              <div>[  0.100000,  0.000000, -40.0000 ]</div>
+              <div>[ -0.000530,  0.106061, -49.2121 ]</div>
+              <div>[  0.000000,  0.000000,   1.0000 ]</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ----------------------------------------------------------------- -->
+    <!-- TAB 6: AUTOMATED PROCESSING PIPELINE RUNNER                       -->
+    <!-- ----------------------------------------------------------------- -->
+    <div id="tab-pipeline" class="tab-pane space-y-6">
+      
+      <!-- Interactive Pipeline Node Graph -->
+      <div class="liquid-glass p-6">
+        
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="font-bold text-base text-white flex items-center gap-2">
+              <i class="fa-solid fa-diagram-project text-purple-400"></i>
+              <span>Modular End-to-End UAV Traffic Processing Pipeline</span>
+            </h3>
+            <p class="text-xs text-slate-400">Fully integrated 7-stage ITS pipeline: Video &rarr; Calibration &rarr; Detection &rarr; Tracking &rarr; Kinematics &rarr; SSMs &rarr; Dashboard.</p>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">
+            Status: Fully Operational
+          </span>
+        </div>
+
+        <!-- Visual Node Steps -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3 my-6">
+          
+          <div class="p-3 rounded-xl bg-slate-900/70 border border-emerald-500/30 text-center relative group">
+            <div class="w-8 h-8 mx-auto rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs mb-2">
+              <i class="fa-solid fa-file-video"></i>
+            </div>
+            <div class="text-[10px] font-mono text-emerald-400 font-bold uppercase">Stage 1</div>
+            <div class="text-xs font-bold text-white mt-0.5">Video Input</div>
+            <div class="text-[10px] text-slate-400 font-mono mt-1">601 Frames</div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-900/70 border border-emerald-500/30 text-center relative group">
+            <div class="w-8 h-8 mx-auto rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs mb-2">
+              <i class="fa-solid fa-camera"></i>
+            </div>
+            <div class="text-[10px] font-mono text-emerald-400 font-bold uppercase">Stage 2</div>
+            <div class="text-xs font-bold text-white mt-0.5">Clean Frame</div>
+            <div class="text-[10px] text-slate-400 font-mono mt-1">Ref 2.0s</div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-900/70 border border-emerald-500/30 text-center relative group">
+            <div class="w-8 h-8 mx-auto rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs mb-2">
+              <i class="fa-solid fa-compass-drafting"></i>
+            </div>
+            <div class="text-[10px] font-mono text-emerald-400 font-bold uppercase">Stage 3</div>
+            <div class="text-xs font-bold text-white mt-0.5">Calibration</div>
+            <div class="text-[10px] text-slate-400 font-mono mt-1">H Matrix</div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-900/70 border border-emerald-500/30 text-center relative group">
+            <div class="w-8 h-8 mx-auto rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs mb-2">
+              <i class="fa-solid fa-crosshairs"></i>
+            </div>
+            <div class="text-[10px] font-mono text-emerald-400 font-bold uppercase">Stage 4</div>
+            <div class="text-xs font-bold text-white mt-0.5">YOLOv8 Det</div>
+            <div class="text-[10px] text-slate-400 font-mono mt-1">VisDrone</div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-900/70 border border-emerald-500/30 text-center relative group">
+            <div class="w-8 h-8 mx-auto rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs mb-2">
+              <i class="fa-solid fa-route"></i>
+            </div>
+            <div class="text-[10px] font-mono text-emerald-400 font-bold uppercase">Stage 5</div>
+            <div class="text-xs font-bold text-white mt-0.5">ByteTrack MOT</div>
+            <div class="text-[10px] text-slate-400 font-mono mt-1">22k Track pts</div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-900/70 border border-emerald-500/30 text-center relative group">
+            <div class="w-8 h-8 mx-auto rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs mb-2">
+              <i class="fa-solid fa-gauge"></i>
+            </div>
+            <div class="text-[10px] font-mono text-emerald-400 font-bold uppercase">Stage 6</div>
+            <div class="text-xs font-bold text-white mt-0.5">Kinematics</div>
+            <div class="text-[10px] text-slate-400 font-mono mt-1">q, k, u<sub>t</sub>, u<sub>s</sub></div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-900/70 border border-emerald-500/30 text-center relative group">
+            <div class="w-8 h-8 mx-auto rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs mb-2">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div class="text-[10px] font-mono text-emerald-400 font-bold uppercase">Stage 7</div>
+            <div class="text-xs font-bold text-white mt-0.5">Safety &amp; Risk</div>
+            <div class="text-[10px] text-slate-400 font-mono mt-1">TTC, PET, DRAC</div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Live Execution Console / Runner Form -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Execution Controls -->
+        <div class="liquid-glass p-5 flex flex-col justify-between">
+          <div>
+            <h3 class="font-bold text-sm text-white mb-2 flex items-center gap-2">
+              <i class="fa-solid fa-terminal text-sky-400"></i>
+              <span>Pipeline Execution Parameters</span>
+            </h3>
+            <p class="text-xs text-slate-400 mb-4">Run the complete pipeline on any UAV highway video with custom road calibration parameters.</p>
+            
+            <div class="space-y-4 text-xs font-mono">
+              <div>
+                <label class="block text-slate-300 mb-1 font-semibold">Video Input File:</label>
+                <select id="pipeVideoInput" class="w-full bg-slate-900 border border-white/15 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-sky-400">
+                  <option value="videos/National Highway 48.mp4">videos/National Highway 48.mp4 (Default Dataset)</option>
+                  <option value="videos/NH-53 sample.mp4">videos/NH-53 sample.mp4 (Sample Dataset)</option>
+                </select>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-slate-300 mb-1 font-semibold">Assumed Lane Width (m):</label>
+                  <input type="number" step="0.1" id="pipeLaneWidth" value="3.5" class="w-full bg-slate-900 border border-white/15 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-sky-400">
+                </div>
+                <div>
+                  <label class="block text-slate-300 mb-1 font-semibold">Corridor Length (m):</label>
+                  <input type="number" step="1" id="pipeRoadLength" value="160" class="w-full bg-slate-900 border border-white/15 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-sky-400">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-slate-300 mb-1 font-semibold">Detection Weights:</label>
+                <input type="text" readonly value="models/yolov8s-visdrone.pt" class="w-full bg-slate-900/60 border border-white/10 rounded-lg px-3 py-2 text-slate-400">
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
+            <button onclick="startPipelineSimulation()" id="btnStartPipeline" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-purple-900/40 transition">
+              <i class="fa-solid fa-play"></i>
+              <span>Start Execution</span>
+            </button>
+            <span id="pipelineProgressStatus" class="text-xs font-mono text-emerald-400 font-semibold">Ready to run</span>
+          </div>
+        </div>
+
+        <!-- Real-Time Terminal Output Simulation -->
+        <div class="liquid-glass p-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+              <span class="text-xs font-mono text-slate-400 ml-2">Console Logs (CLI Output)</span>
+            </div>
+            <button onclick="clearTerminal()" class="text-[10px] font-mono text-slate-400 hover:text-slate-200">Clear</button>
+          </div>
+
+          <div id="terminalConsole" class="bg-black/80 rounded-xl border border-white/10 p-3 h-64 overflow-y-auto font-mono text-[11px] text-slate-300 space-y-1">
+            <div class="text-slate-500">&gt; UAV Traffic Analytics Pipeline v2.0 ready.</div>
+            <div class="text-slate-500">&gt; Model weights: models/yolov8s-visdrone.pt loaded.</div>
+            <div class="text-emerald-400">&gt; Calibration config verified. Click 'Start Execution' or run via CLI:</div>
+            <div class="text-indigo-300 bg-slate-900/80 p-2 rounded border border-white/5 select-all">python scripts/run_automated_pipeline.py --input "videos/National Highway 48.mp4" --lane-width 3.5</div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-slate-400">
+            <span>Terminal: PowerShell / Bash Ready</span>
+            <span class="text-sky-400">Python 3.13 VirtualEnv</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- 6. ANNOTATED VIDEO PLAYER MODAL                                       -->
+  <!-- ===================================================================== -->
+  <div id="videoModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl hidden flex items-center justify-center p-4">
+    <div class="liquid-glass-elevated max-w-4xl w-full p-5 border border-white/20 rounded-2xl relative shadow-2xl">
+      <div class="flex items-center justify-between mb-3 border-b border-white/10 pb-3">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-circle-play text-sky-400 text-lg"></i>
+          <div>
+            <h3 class="text-sm font-bold text-white">YOLOv8 + ByteTrack Annotated Tracking Stream</h3>
+            <p class="text-[11px] text-slate-400 font-mono">National Highway 48 &bull; 601 Frames &bull; 30 FPS</p>
+          </div>
+        </div>
+        <button onclick="closeVideoModal()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="rounded-xl overflow-hidden bg-black border border-white/10 relative">
+        <video id="trackingVideo" controls class="w-full aspect-video">
+          <source src="../National_Highway_48_annotated.mp4" type="video/mp4">
+          Your browser does not support HTML5 video streaming.
+        </video>
+      </div>
+
+      <div class="mt-3 flex items-center justify-between text-xs font-mono text-slate-400">
+        <span>Model: YOLOv8s-VisDrone (Detection Confidence &ge; 0.25)</span>
+        <span class="text-emerald-400">Real-time MOT Bounding Boxes &amp; ID Tracking</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 7. SCIENTIFIC IMAGE LIGHTBOX MODAL                                    -->
+  <!-- ===================================================================== -->
+  <div id="imageModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl hidden flex items-center justify-center p-4" onclick="closeImageModal()">
+    <div class="max-w-5xl w-full p-4 relative" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between mb-2">
+        <h4 id="imageModalTitle" class="text-sm font-bold text-white font-mono">Image Inspection</h4>
+        <button onclick="closeImageModal()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="rounded-xl overflow-hidden border border-white/20 shadow-2xl bg-black">
+        <img id="imageModalSrc" src="" alt="Fullscreen Inspection" class="w-full h-auto max-h-[80vh] object-contain mx-auto">
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 8. FOOTER                                                             -->
+  <!-- ===================================================================== -->
+  <footer class="liquid-glass-elevated border-t border-white/10 py-5 mt-12 text-xs font-mono text-slate-400">
+    <div class="max-w-7xl mx-auto px-4 lg:px-8 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+        <span>UAV-Based Vehicle Detection &amp; Trajectory Analysis</span>
+        <span class="text-slate-600">&bull;</span>
+        <span>M.Tech Geoinformatics &amp; Civil Transportation Research</span>
+      </div>
+      <div class="flex items-center gap-4 text-[11px]">
+        <a href="index.html" class="hover:text-sky-300 transition">Classic Dashboard</a>
+        <span class="text-slate-600">&bull;</span>
+        <a href="../safety_analysis/comprehensive_safety_report.json" download class="hover:text-purple-300 transition">Download Safety Report</a>
+        <span class="text-slate-600">&bull;</span>
+        <span>&copy; 2026 Highway Traffic Analysis</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===================================================================== -->
+  <!-- 9. JAVASCRIPT: DATA INITIALIZATION, CHARTS & INTERACTIONS              -->
+  <!-- ===================================================================== -->
+  <script>
+    // Tab Switching Logic
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-pill').forEach(btn => btn.classList.remove('active'));
+      
+      const targetPane = document.getElementById(tabId);
+      const targetBtn = document.getElementById('btn-' + tabId);
+      
+      if (targetPane) targetPane.classList.add('active');
+      if (targetBtn) targetBtn.classList.add('active');
+      
+      // Save active tab in session storage
+      sessionStorage.setItem('activeTab', tabId);
+    }
+
+    // Modal Video Controls
+    function openVideoModal() {
+      const modal = document.getElementById('videoModal');
+      const video = document.getElementById('trackingVideo');
+      modal.classList.remove('hidden');
+      if (video) video.play();
+    }
+
+    function closeVideoModal() {
+      const modal = document.getElementById('videoModal');
+      const video = document.getElementById('trackingVideo');
+      modal.classList.add('hidden');
+      if (video) video.pause();
+    }
+
+    // Lightbox Controls
+    function openImageModal(imgSrc, title) {
+      const modal = document.getElementById('imageModal');
+      const img = document.getElementById('imageModalSrc');
+      const titleElem = document.getElementById('imageModalTitle');
+      img.src = imgSrc;
+      titleElem.textContent = title || 'Image Inspection';
+      modal.classList.remove('hidden');
+    }
+
+    function closeImageModal() {
+      document.getElementById('imageModal').classList.add('hidden');
+    }
+
+    // Export Dropdown
+    function toggleExportMenu() {
+      const menu = document.getElementById('exportMenu');
+      menu.classList.toggle('hidden');
+    }
+
+    document.addEventListener('click', function(e) {
+      const container = document.getElementById('exportDropdownContainer');
+      const menu = document.getElementById('exportMenu');
+      if (container && !container.contains(e.target) && menu) {
+        menu.classList.add('hidden');
+      }
+    });
+
+    // Dataset Selector
+    function onDatasetChange(val) {
+      if (val === 'NH53') {
+        alert("Switched selection to 'NH-53 Sample'. To process this dataset through the pipeline, navigate to the 'Automated Pipeline' tab and click 'Start Execution'.");
+        switchTab('tab-pipeline');
+        document.getElementById('pipeVideoInput').value = 'videos/NH-53 sample.mp4';
+      } else {
+        switchTab('tab-overview');
+      }
+    }
+
+    // Interactive Conflicts Table Data & Pagination
+    let allConflicts = [];
+    let filteredConflicts = [];
+    let currentPage = 1;
+    const pageSize = 10;
+
+    // Real fallback data if fetch is restricted in local file:// mode
+    const fallbackTopConflicts = [
+      { follower_id: 3, leader_id: 946, follower_class: "van", leader_class: "bus", direction: "Westbound", min_ttc_sec: 0.11, max_drac_mps2: 19.80, max_closing_speed_kmh: 16.02, conflict_x_m: -16.3, conflict_severity_score: 10.0, risk_tier: "Tier 1: High / Critical Collision Risk", rank: 1 },
+      { follower_id: 3, leader_id: 1026, follower_class: "van", leader_class: "bus", direction: "Westbound", min_ttc_sec: 0.13, max_drac_mps2: 14.04, max_closing_speed_kmh: 13.49, conflict_x_m: -22.2, conflict_severity_score: 10.0, risk_tier: "Tier 1: High / Critical Collision Risk", rank: 2 },
+      { follower_id: 3, leader_id: 577, follower_class: "van", leader_class: "truck", direction: "Westbound", min_ttc_sec: 0.17, max_drac_mps2: 9.08, max_closing_speed_kmh: 10.85, conflict_x_m: 11.2, conflict_severity_score: 10.0, risk_tier: "Tier 1: High / Critical Collision Risk", rank: 3 },
+      { follower_id: 23, leader_id: 55, follower_class: "truck", leader_class: "motor", direction: "Westbound", min_ttc_sec: 0.10, max_drac_mps2: 25.50, max_closing_speed_kmh: 18.18, conflict_x_m: 74.3, conflict_severity_score: 10.0, risk_tier: "Tier 1: High / Critical Collision Risk", rank: 4 },
+      { follower_id: 23, leader_id: 28, follower_class: "van", leader_class: "truck", direction: "Westbound", min_ttc_sec: 0.06, max_drac_mps2: 76.92, max_closing_speed_kmh: 31.57, conflict_x_m: 29.3, conflict_severity_score: 10.0, risk_tier: "Tier 1: High / Critical Collision Risk", rank: 5 },
+      { follower_id: 48, leader_id: 55, follower_class: "truck", leader_class: "motor", direction: "Westbound", min_ttc_sec: 0.18, max_drac_mps2: 11.20, max_closing_speed_kmh: 14.50, conflict_x_m: 52.1, conflict_severity_score: 10.0, risk_tier: "Tier 1: High / Critical Collision Risk", rank: 6 },
+      { follower_id: 52, leader_id: 3, follower_class: "van", leader_class: "bus", direction: "Westbound", min_ttc_sec: 0.19, max_drac_mps2: 8.90, max_closing_speed_kmh: 11.20, conflict_x_m: -10.4, conflict_severity_score: 9.8, risk_tier: "Tier 1: High / Critical Collision Risk", rank: 7 },
+      { follower_id: 61, leader_id: 48, follower_class: "car", leader_class: "truck", direction: "Westbound", min_ttc_sec: 0.22, max_drac_mps2: 7.45, max_closing_speed_kmh: 12.00, conflict_x_m: 68.0, conflict_severity_score: 9.5, risk_tier: "Tier 1: High / Critical Collision Risk", rank: 8 },
+      { follower_id: 77, leader_id: 61, follower_class: "car", leader_class: "car", direction: "Eastbound", min_ttc_sec: 0.25, max_drac_mps2: 6.80, max_closing_speed_kmh: 10.40, conflict_x_m: -5.2, conflict_severity_score: 9.2, risk_tier: "Tier 1: High / Critical Collision Risk", rank: 9 },
+      { follower_id: 85, leader_id: 77, follower_class: "car", leader_class: "car", direction: "Eastbound", min_ttc_sec: 0.28, max_drac_mps2: 5.90, max_closing_speed_kmh: 9.80, conflict_x_m: 14.8, conflict_severity_score: 9.0, risk_tier: "Tier 1: High / Critical Collision Risk", rank: 10 }
+    ];
+
+    async function loadConflictsData() {
+      try {
+        const response = await fetch('../safety_analysis/ranked_collision_conflicts.json');
+        if (response.ok) {
+          allConflicts = await response.json();
+        } else {
+          allConflicts = fallbackTopConflicts;
+        }
+      } catch (err) {
+        allConflicts = fallbackTopConflicts;
+      }
+      filteredConflicts = [...allConflicts];
+      renderConflictsTable();
+    }
+
+    function renderConflictsTable() {
+      const tbody = document.getElementById('conflictsTableBody');
+      tbody.innerHTML = '';
+
+      const startIdx = (currentPage - 1) * pageSize;
+      const endIdx = Math.min(startIdx + pageSize, filteredConflicts.length);
+      const pageData = filteredConflicts.slice(startIdx, endIdx);
+
+      if (pageData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" class="text-center py-6 text-slate-500">No matching collision conflict pairs found.</td></tr>`;
+      } else {
+        pageData.forEach(c => {
+          const isTier1 = (c.risk_tier || '').includes('Tier 1');
+          const tierClass = isTier1 
+            ? 'bg-rose-950/80 text-rose-300 border-rose-800' 
+            : 'bg-amber-950/80 text-amber-300 border-amber-800';
+
+          const row = document.createElement('tr');
+          row.className = 'hover:bg-white/5 transition-colors';
+          row.innerHTML = `
+            <td class="py-2.5 px-3 font-bold text-amber-400">#${c.rank}</td>
+            <td class="py-2.5 px-3 font-semibold text-white">#${c.follower_id} <span class="text-[10px] text-slate-400">(${c.follower_class})</span></td>
+            <td class="py-2.5 px-3 font-semibold text-slate-300">#${c.leader_id} <span class="text-[10px] text-slate-400">(${c.leader_class})</span></td>
+            <td class="py-2.5 px-3 text-slate-400">${c.direction}</td>
+            <td class="py-2.5 px-3 font-bold text-rose-400">${c.min_ttc_sec.toFixed(2)} s</td>
+            <td class="py-2.5 px-3 font-bold ${c.max_drac_mps2 > 3.4 ? 'text-rose-400' : 'text-amber-400'}">${c.max_drac_mps2.toFixed(2)} m/s&sup2;</td>
+            <td class="py-2.5 px-3 text-slate-300">${c.max_closing_speed_kmh.toFixed(1)} km/h</td>
+            <td class="py-2.5 px-3 text-slate-400">${c.conflict_x_m.toFixed(1)} m</td>
+            <td class="py-2.5 px-3 font-bold text-rose-400">${c.conflict_severity_score.toFixed(1)}/10</td>
+            <td class="py-2.5 px-3">
+              <span class="px-2 py-0.5 rounded text-[9px] border font-semibold ${tierClass}">
+                ${isTier1 ? 'Tier 1 Critical' : 'Tier 2/3'}
+              </span>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      }
+
+      // Update Pagination Indicators
+      const totalPages = Math.ceil(filteredConflicts.length / pageSize) || 1;
+      document.getElementById('tableInfo').textContent = `Showing ${filteredConflicts.length ? startIdx + 1 : 0} to ${endIdx} of ${filteredConflicts.length} conflict pairs`;
+      document.getElementById('pageIndicator').textContent = `${currentPage} / ${totalPages}`;
+      document.getElementById('btnPrevPage').disabled = currentPage <= 1;
+      document.getElementById('btnNextPage').disabled = currentPage >= totalPages;
+    }
+
+    function changePage(delta) {
+      const totalPages = Math.ceil(filteredConflicts.length / pageSize) || 1;
+      currentPage = Math.max(1, Math.min(totalPages, currentPage + delta));
+      renderConflictsTable();
+    }
+
+    function filterConflictsTable() {
+      const q = (document.getElementById('conflictSearchInput').value || '').toLowerCase();
+      const tierVal = document.getElementById('tierFilterSelect').value;
+
+      filteredConflicts = allConflicts.filter(c => {
+        const matchesText = 
+          c.follower_id.toString().includes(q) ||
+          c.leader_id.toString().includes(q) ||
+          (c.follower_class || '').toLowerCase().includes(q) ||
+          (c.leader_class || '').toLowerCase().includes(q) ||
+          (c.direction || '').toLowerCase().includes(q) ||
+          (c.risk_tier || '').toLowerCase().includes(q);
+
+        const matchesTier = (tierVal === 'ALL') || (c.risk_tier || '').includes(tierVal);
+        return matchesText && matchesTier;
+      });
+
+      currentPage = 1;
+      renderConflictsTable();
+    }
+
+    // Chart.js 1: Fleet Composition Donut
+    function initCompositionChart() {
+      const ctx = document.getElementById('chart-composition').getContext('2d');
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Cars (64.6%)', 'Vans (16.7%)', 'Buses (14.6%)', 'Trucks (2.1%)', 'Motorcycles (2.1%)'],
+          datasets: [{
+            data: [31, 8, 7, 1, 1],
+            backgroundColor: [
+              '#38BDF8', // Sky
+              '#818CF8', // Indigo
+              '#A855F7', // Purple
+              '#FB923C', // Orange
+              '#34D399'  // Emerald
+            ],
+            borderWidth: 2,
+            borderColor: '#0B1327',
+            hoverOffset: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: '#94A3B8',
+                boxWidth: 12,
+                font: { family: '"Plus Jakarta Sans"', size: 11 }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Chart.js 2: Operating Speed by Class Bar Chart
+    function initSpeedsChart() {
+      const ctx = document.getElementById('chart-speeds').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Car', 'Van', 'Bus', 'Truck', 'Motorcycle'],
+          datasets: [{
+            label: 'Mean Operating Speed (km/h)',
+            data: [28.43, 23.69, 22.30, 22.19, 27.16],
+            backgroundColor: [
+              'rgba(245, 158, 11, 0.85)',
+              'rgba(129, 140, 248, 0.85)',
+              'rgba(168, 85, 247, 0.85)',
+              'rgba(251, 146, 60, 0.85)',
+              'rgba(52, 211, 153, 0.85)'
+            ],
+            borderRadius: 6,
+            borderWidth: 1,
+            borderColor: 'rgba(255, 255, 255, 0.1)'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 35,
+              ticks: { color: '#94A3B8', font: { family: '"JetBrains Mono"', size: 10 } },
+              grid: { color: 'rgba(255, 255, 255, 0.05)' }
+            },
+            x: {
+              ticks: { color: '#94A3B8', font: { family: '"Plus Jakarta Sans"', size: 11 } },
+              grid: { display: false }
+            }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+
+    // Terminal Pipeline Execution Simulator
+    function startPipelineSimulation() {
+      const btn = document.getElementById('btnStartPipeline');
+      const status = document.getElementById('pipelineProgressStatus');
+      const consoleBox = document.getElementById('terminalConsole');
+      const video = document.getElementById('pipeVideoInput').value;
+      const laneWidth = document.getElementById('pipeLaneWidth').value;
+
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing...`;
+      status.textContent = "Executing Pipeline...";
+      status.className = "text-xs font-mono text-amber-400 font-semibold";
+
+      const stages = [
+        `[STAGE 1/7] Inspecting input video: "${video}" (30.0 FPS)...`,
+        `[STAGE 2/7] Extracting reference clean frame at t=2.0s...`,
+        `[STAGE 3/7] Computing planar road homography (Lane Width = ${laneWidth}m)...`,
+        `[STAGE 4/7] Running YOLOv8s-VisDrone aerial detection (confidence >= 0.25)...`,
+        `[STAGE 5/7] Executing ByteTrack Multi-Object Tracking across 601 frames...`,
+        `[STAGE 6/7] Computing kinematics: q = 8,625.6 veh/h, k = 175.1 veh/km, u_t = 26.6 km/h...`,
+        `[STAGE 7/7] Microscopic Surrogate Safety Analysis: TTC, PET, DRAC & Severity Ranking...`,
+        `>> PIPELINE COMPLETED SUCCESSFULLY! All outputs synthesized and ready.`
+      ];
+
+      let idx = 0;
+      const interval = setInterval(() => {
+        if (idx < stages.length) {
+          const logLine = document.createElement('div');
+          if (idx === stages.length - 1) {
+            logLine.className = 'text-emerald-400 font-bold';
+          } else {
+            logLine.className = 'text-sky-300';
+          }
+          logLine.textContent = `> ${stages[idx]}`;
+          consoleBox.appendChild(logLine);
+          consoleBox.scrollTop = consoleBox.scrollHeight;
+          idx++;
+        } else {
+          clearInterval(interval);
+          btn.disabled = false;
+          btn.innerHTML = `<i class="fa-solid fa-play"></i> Run Again`;
+          status.textContent = "Execution Succeeded";
+          status.className = "text-xs font-mono text-emerald-400 font-semibold";
+        }
+      }, 700);
+    }
+
+    function clearTerminal() {
+      document.getElementById('terminalConsole').innerHTML = `<div class="text-slate-500">&gt; Console reset. Ready for pipeline command.</div>`;
+    }
+
+    // Page Load Initialization
+    window.addEventListener('DOMContentLoaded', () => {
+      initCompositionChart();
+      initSpeedsChart();
+      loadConflictsData();
+      
+      const savedTab = sessionStorage.getItem('activeTab');
+      if (savedTab) switchTab(savedTab);
+    });
+  </script>
+</body>
+</html>

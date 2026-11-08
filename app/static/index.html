@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="warm-cream" data-glass="true" data-motion="true" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UAV Traffic Studio | Vehicle Detection & Trajectory Analysis</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- Studio Custom Design System & Liquid Glass -->
+  <link rel="stylesheet" href="/static/css/studio.css">
+
+  <style>
+    /* Specific custom overrides for studio layout */
+    .sidebar-nav-item.active-nav-tab {
+      background: var(--accent-bronze) !important;
+      color: #FFFFFF !important;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(128, 99, 66, 0.25);
+    }
+    .sidebar-nav-item.active-nav-tab i {
+      color: #FFFFFF !important;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased">
+
+  <!-- ===================================================================== -->
+  <!-- 1. APPLICATION SHELL & SIDEBAR NAVIGATION                             -->
+  <!-- ===================================================================== -->
+  <div class="flex-1 flex flex-col md:flex-row min-h-screen">
+    
+    <!-- Collapsible Sidebar -->
+    <aside id="appSidebar" class="w-full md:w-64 glass-nav border-r flex flex-col justify-between p-4 z-30 transition-all" style="border-color: var(--border-color)">
+      <div class="space-y-6">
+        
+        <!-- Brand Header -->
+        <div class="flex items-center gap-3 px-2 pt-2">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-md font-bold text-lg" style="background: var(--accent-bronze)">
+            <i class="fa-solid fa-drone"></i>
+          </div>
+          <div>
+            <h1 class="font-extrabold text-sm tracking-tight leading-tight" style="color: var(--text-primary)">
+              UAV TRAFFIC STUDIO
+            </h1>
+            <p class="text-[10px] font-mono tracking-wider uppercase font-semibold" style="color: var(--accent-bronze)">
+              M.Tech Research Suite
+            </p>
+          </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="space-y-1">
+          <button data-tab="tab-overview" class="sidebar-nav-item active-nav-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition text-left">
+            <i class="fa-solid fa-chart-line w-4 text-center"></i>
+            <span>Overview & Summary</span>
+          </button>
+
+          <button data-tab="tab-video" class="sidebar-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition text-left hover:bg-black/5" style="color: var(--text-secondary)">
+            <i class="fa-solid fa-video w-4 text-center"></i>
+            <span>Video & Detection</span>
+          </button>
+
+          <button data-tab="tab-flow" class="sidebar-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition text-left hover:bg-black/5" style="color: var(--text-secondary)">
+            <i class="fa-solid fa-wave-square w-4 text-center"></i>
+            <span>Flow & Speed Analytics</span>
+          </button>
+
+          <button data-tab="tab-trajectory" class="sidebar-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition text-left hover:bg-black/5" style="color: var(--text-secondary)">
+            <i class="fa-solid fa-route w-4 text-center"></i>
+            <span>Trajectory Studio (x-t)</span>
+          </button>
+
+          <button data-tab="tab-safety" class="sidebar-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition text-left hover:bg-black/5" style="color: var(--text-secondary)">
+            <i class="fa-solid fa-shield-halved w-4 text-center"></i>
+            <span>Critical Distance & Risk</span>
+          </button>
+
+          <button data-tab="tab-hotspots" class="sidebar-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition text-left hover:bg-black/5" style="color: var(--text-secondary)">
+            <i class="fa-solid fa-fire w-4 text-center"></i>
+            <span>Spatial Hotspots</span>
+          </button>
+
+          <button data-tab="tab-pipeline" class="sidebar-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition text-left hover:bg-black/5" style="color: var(--text-secondary)">
+            <i class="fa-solid fa-gears w-4 text-center"></i>
+            <span>Automated Pipeline</span>
+          </button>
+
+          <button data-tab="tab-reports" class="sidebar-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition text-left hover:bg-black/5" style="color: var(--text-secondary)">
+            <i class="fa-solid fa-file-export w-4 text-center"></i>
+            <span>Reports & Exports</span>
+          </button>
+        </nav>
+
+        <!-- Dataset & Status Card -->
+        <div class="glass-card p-3 rounded-xl border text-xs space-y-2">
+          <div class="flex items-center justify-between text-[11px] font-mono">
+            <span class="text-slate-500">CORRIDOR</span>
+            <span class="font-bold" style="color: var(--accent-bronze)">NH-48</span>
+          </div>
+          <div class="text-[11px] font-mono text-slate-500">
+            1608x908 @ 30 FPS • 20.0s
+          </div>
+          <div class="flex items-center gap-1.5 text-[10px] text-emerald-700 font-semibold">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>REST API Active</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Sidebar Bottom: Classic & Dark Links -->
+      <div class="pt-4 border-t space-y-2 text-[11px]" style="border-color: var(--border-color)">
+        <a href="http://localhost:8000/" target="_blank" class="flex items-center justify-between p-2 rounded-lg hover:bg-black/5 transition" style="color: var(--text-secondary)">
+          <span><i class="fa-solid fa-moon mr-1.5"></i> Dark UI (v2.0)</span>
+          <span class="font-mono text-[10px]">:8000</span>
+        </a>
+        <a href="http://localhost:8000/dashboard/index.html" target="_blank" class="flex items-center justify-between p-2 rounded-lg hover:bg-black/5 transition" style="color: var(--text-secondary)">
+          <span><i class="fa-solid fa-box-archive mr-1.5"></i> Classic UI</span>
+          <span class="font-mono text-[10px]">:8000</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Application Canvas -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+      
+      <!-- =================================================================== -->
+      <!-- 2. PROJECT HEADER & CONTROLS                                        -->
+      <!-- =================================================================== -->
+      <header class="glass-nav sticky top-0 z-20 border-b px-4 lg:px-6 py-3 flex flex-wrap items-center justify-between gap-4">
+        
+        <!-- Left Title & Breadcrumbs -->
+        <div class="flex items-center gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-sm lg:text-base tracking-tight" style="color: var(--text-primary)">
+                National Highway 48 Analytics
+              </span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                Calibrated (3.5m)
+              </span>
+            </div>
+            <p class="text-[11px] font-medium" style="color: var(--text-secondary)">
+              UAV Video-Based Vehicle Detection, Trajectory Extraction &amp; Surrogate Safety Analysis
+            </p>
+          </div>
+        </div>
+
+        <!-- Right Quick Controls -->
+        <div class="flex items-center gap-2.5">
+          
+          <!-- Theme Dropdown -->
+          <div class="flex items-center gap-1.5 text-xs">
+            <select id="selectHeaderTheme" class="px-2.5 py-1.5 rounded-lg border text-xs font-medium cursor-pointer shadow-sm" style="background: var(--bg-card); border-color: var(--border-color); color: var(--text-primary)">
+              <option value="warm-cream">Warm Cream (Default)</option>
+              <option value="clean-light">Clean Light</option>
+              <option value="dark-analytics">Dark Analytics</option>
+            </select>
+          </div>
+
+          <!-- Glass Quick Toggle -->
+          <button id="btnQuickGlassToggle" class="px-2.5 py-1.5 rounded-lg border text-xs font-medium shadow-sm transition flex items-center gap-1.5" style="background: var(--bg-card); border-color: var(--border-color); color: var(--text-primary)">
+            <i class="fa-solid fa-droplet text-amber-600"></i>
+            <span>Glass: <b>ON</b></span>
+          </button>
+
+          <!-- Appearance Modal Button -->
+          <button id="btnOpenAppearanceModal" class="p-1.5 px-2.5 rounded-lg border text-xs shadow-sm hover:bg-black/5 transition" title="Appearance Settings" style="background: var(--bg-card); border-color: var(--border-color); color: var(--text-primary)">
+            <i class="fa-solid fa-sliders"></i>
+          </button>
+
+          <!-- Run Pipeline Action Button -->
+          <button id="btnHeaderRunPipeline" class="px-3.5 py-1.5 rounded-lg text-white font-semibold text-xs shadow-md transition flex items-center gap-1.5 hover:opacity-95" style="background: var(--accent-bronze)">
+            <i class="fa-solid fa-play text-[10px]"></i>
+            <span>Run Pipeline</span>
+          </button>
+
+        </div>
+      </header>
+
+      <!-- =================================================================== -->
+      <!-- 3. WORKSPACE PANES                                                  -->
+      <!-- =================================================================== -->
+      <div class="flex-1 p-4 lg:p-6 max-w-7xl w-full mx-auto space-y-6">
+
+        <!-- ───────────────────────────────────────────────────────────────── -->
+        <!-- PANE A: OVERVIEW & RESEARCH SUMMARY                               -->
+        <!-- ───────────────────────────────────────────────────────────────── -->
+        <section id="tab-overview" class="tab-pane active space-y-6 animate-fade">
+          
+          <!-- Primary Adaptive KPI Summary Grid -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            
+            <div class="glass-card interactive-card p-4 rounded-2xl border">
+              <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Flow Rate (q)</div>
+              <div id="kpiFlowRate" class="text-2xl font-extrabold font-mono mt-1" style="color: var(--accent-bronze)">8,626</div>
+              <div class="text-[11px] text-slate-500 mt-0.5">veh/hour • 20s window</div>
+            </div>
+
+            <div class="glass-card interactive-card p-4 rounded-2xl border">
+              <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Traffic Density (k)</div>
+              <div id="kpiDensity" class="text-2xl font-extrabold font-mono mt-1" style="color: var(--accent-teal)">175.1</div>
+              <div class="text-[11px] text-slate-500 mt-0.5">veh/km • 160m segment</div>
+            </div>
+
+            <div class="glass-card interactive-card p-4 rounded-2xl border">
+              <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Time-Mean Speed (ut)</div>
+              <div id="kpiTimeMeanSpeed" class="text-2xl font-extrabold font-mono mt-1" style="color: var(--accent-blue)">26.6 km/h</div>
+              <div class="text-[11px] text-slate-500 mt-0.5">p85: 31.7 km/h</div>
+            </div>
+
+            <div class="glass-card interactive-card p-4 rounded-2xl border">
+              <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Critical Conflicts</div>
+              <div id="kpiConflictPairs" class="text-2xl font-extrabold font-mono mt-1 text-red-600">147</div>
+              <div class="text-[11px] text-slate-500 mt-0.5">Tier 1 pairs (195 evaluated)</div>
+            </div>
+
+          </div>
+
+          <!-- Secondary Metric Grid -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="glass-card p-3 rounded-xl border flex items-center justify-between text-xs">
+              <span class="text-slate-500">Highway Vehicles:</span>
+              <span id="kpiVehicles" class="font-bold font-mono">48</span>
+            </div>
+            <div class="glass-card p-3 rounded-xl border flex items-center justify-between text-xs">
+              <span class="text-slate-500">Space-Mean Speed:</span>
+              <span id="kpiSpaceMeanSpeed" class="font-bold font-mono">25.4 km/h</span>
+            </div>
+            <div class="glass-card p-3 rounded-xl border flex items-center justify-between text-xs">
+              <span class="text-slate-500">Critical TTC (&lt;1.5s):</span>
+              <span id="kpiCriticalTTC" class="font-bold font-mono text-red-600">2,391</span>
+            </div>
+            <div class="glass-card p-3 rounded-xl border flex items-center justify-between text-xs">
+              <span class="text-slate-500">Primary Bottleneck:</span>
+              <span class="font-bold font-mono text-amber-700">[0m, 20m]</span>
+            </div>
+          </div>
+
+          <!-- Methodology Alert -->
+          <div class="p-3.5 rounded-xl border text-xs flex items-start gap-3 bg-amber-50/70 border-amber-200 text-amber-900">
+            <i class="fa-solid fa-triangle-exclamation text-amber-600 mt-0.5 text-sm"></i>
+            <div>
+              <span class="font-bold">Research Methodology Notice:</span>
+              <span>All metric distances, speeds, and stopping sight distances are derived using road-plane homography calibrated against an assumed 3.5m lane width baseline without surveyed ground-truth ground control points (GCPs). All numerical metrics represent preliminary unverified research data.</span>
+            </div>
+          </div>
+
+          <!-- Two Main Charts: Modal Split & Speed Distribution -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <div class="glass-card p-4 rounded-2xl border space-y-3">
+              <div class="flex items-center justify-between">
+                <h3 class="font-bold text-xs uppercase tracking-wider" style="color: var(--text-primary)">
+                  Traffic Composition (Modal Split)
+                </h3>
+                <span class="text-[10px] font-mono text-slate-500">VisDrone YOLOv8</span>
+              </div>
+              <div class="h-60 relative">
+                <canvas id="chartModalSplit"></canvas>
+              </div>
+            </div>
+
+            <div class="glass-card p-4 rounded-2xl border space-y-3">
+              <div class="flex items-center justify-between">
+                <h3 class="font-bold text-xs uppercase tracking-wider" style="color: var(--text-primary)">
+                  Speed Distribution &amp; 85th Percentile
+                </h3>
+                <span class="text-[10px] font-mono text-slate-500">p85 = 31.7 km/h</span>
+              </div>
+              <div class="h-60 relative">
+                <canvas id="chartSpeedDist"></canvas>
+              </div>
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- ───────────────────────────────────────────────────────────────── -->
+        <!-- PANE B: VIDEO & VEHICLE DETECTION WORKSPACE                       -->
+        <!-- ───────────────────────────────────────────────────────────────── -->
+        <section id="tab-video" class="tab-pane space-y-6 animate-fade">
+          
+          <div class="glass-card p-4 lg:p-6 rounded-2xl border space-y-4">
+            
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b pb-4" style="border-color: var(--border-color)">
+              <div>
+                <h2 class="text-base font-bold" style="color: var(--text-primary)">Video &amp; Vehicle Detection Workspace</h2>
+                <p class="text-xs text-slate-500">Native UAV playback, object detection bounding boxes, and frame navigation</p>
+              </div>
+              
+              <!-- Video Select -->
+              <div class="flex items-center gap-2 text-xs">
+                <label class="font-semibold text-slate-500">Source Video:</label>
+                <select id="selectActiveVideo" class="px-3 py-1.5 rounded-lg border font-mono font-medium" style="background: var(--bg-card); border-color: var(--border-color)">
+                  <option value="videos/National Highway 48.mp4" selected>National Highway 48.mp4 (Selected)</option>
+                  <option value="videos/NH-53 sample.mp4">NH-53 sample.mp4</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Video Player Canvas Container -->
+            <div class="relative bg-black rounded-xl overflow-hidden aspect-video flex items-center justify-center border" style="border-color: var(--border-color)">
+              <video id="mainVideoPlayer" class="w-full h-full object-contain" src="/outputs/National_Highway_48_annotated.mp4" preload="metadata" controls></video>
+            </div>
+
+            <!-- Video Telemetry Controls -->
+            <div class="flex flex-wrap items-center justify-between gap-3 pt-2 text-xs">
+              <div class="flex items-center gap-2">
+                <button id="btnVideoPlay" class="px-3 py-1.5 rounded-lg font-bold text-white shadow-sm" style="background: var(--accent-bronze)">
+                  <i class="fa-solid fa-play"></i>
+                </button>
+                <button id="btnVideoPrevFrame" class="px-2.5 py-1.5 rounded-lg border hover:bg-black/5" title="Step -1 frame">
+                  <i class="fa-solid fa-backward-step"></i>
+                </button>
+                <button id="btnVideoNextFrame" class="px-2.5 py-1.5 rounded-lg border hover:bg-black/5" title="Step +1 frame">
+                  <i class="fa-solid fa-forward-step"></i>
+                </button>
+                <span id="videoTimeDisplay" class="font-mono text-slate-500 ml-2">0.00s / 20.03s [Frame 0]</span>
+              </div>
+
+              <div class="flex items-center gap-3 font-mono text-[11px] text-slate-500">
+                <span>Model: <b>YOLOv8s-visdrone</b></span>
+                <span>Conf: <b>0.50</b></span>
+                <span>MOT: <b>ByteTrack</b></span>
+              </div>
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- ───────────────────────────────────────────────────────────────── -->
+        <!-- PANE C: TRAFFIC FLOW & SPEED ANALYTICS                            -->
+        <!-- ───────────────────────────────────────────────────────────────── -->
+        <section id="tab-flow" class="tab-pane space-y-6 animate-fade">
+          
+          <div class="glass-card p-4 lg:p-6 rounded-2xl border space-y-4">
+            <div class="border-b pb-3" style="border-color: var(--border-color)">
+              <h2 class="text-base font-bold" style="color: var(--text-primary)">Traffic Flow Theory &amp; Macroscopic Parameters</h2>
+              <p class="text-xs text-slate-500">Hourly flow equivalent (q), space density (k), and velocity profile</p>
+            </div>
+
+            <div class="h-72 relative">
+              <canvas id="chartFlowDensity"></canvas>
+            </div>
+
+            <!-- Fundamental Relationships Table -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+              <div class="p-3 rounded-xl border bg-black/5 text-xs space-y-1">
+                <span class="font-bold text-slate-700">Lighthill-Whitham-Richards (LWR):</span>
+                <p class="text-[11px] text-slate-600 font-mono">q = k &times; u_s</p>
+                <p class="text-[10px] text-slate-500">q = 175.1 veh/km &times; 25.44 km/h = 4,454 veh/h/lane equiv.</p>
+              </div>
+
+              <div class="p-3 rounded-xl border bg-black/5 text-xs space-y-1">
+                <span class="font-bold text-slate-700">Directional Flow Split:</span>
+                <p class="text-[11px] text-slate-600 font-mono">Westbound: 5,032 veh/h (58.3%)</p>
+                <p class="text-[11px] text-slate-600 font-mono">Eastbound: 3,594 veh/h (41.7%)</p>
+              </div>
+
+              <div class="p-3 rounded-xl border bg-black/5 text-xs space-y-1">
+                <span class="font-bold text-slate-700">Speed Variance:</span>
+                <p class="text-[11px] text-slate-600 font-mono">Mean ut: 26.59 km/h &bull; &sigma;: 5.42</p>
+                <p class="text-[10px] text-slate-500">85th-Percentile Operating Speed: 31.67 km/h</p>
+              </div>
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- ───────────────────────────────────────────────────────────────── -->
+        <!-- PANE D: TRAJECTORY ANALYSIS STUDIO                                -->
+        <!-- ───────────────────────────────────────────────────────────────── -->
+        <section id="tab-trajectory" class="tab-pane space-y-6 animate-fade">
+          
+          <div class="glass-card p-4 lg:p-6 rounded-2xl border space-y-4">
+            
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b pb-4" style="border-color: var(--border-color)">
+              <div>
+                <h2 class="text-base font-bold" style="color: var(--text-primary)">Interactive Trajectory Studio</h2>
+                <p class="text-xs text-slate-500">Space-Time Diagram: Longitudinal distance (x) vs Time (t). Line slope equals velocity (dx/dt).</p>
+              </div>
+
+              <!-- Vehicle Pair Selectors -->
+              <div class="flex flex-wrap items-center gap-3 text-xs">
+                <div class="flex items-center gap-1.5">
+                  <span class="font-bold text-red-600">Vehicle 1:</span>
+                  <select id="selectTrajVeh1" class="px-2.5 py-1.5 rounded-lg border font-mono font-medium" style="background: var(--bg-card); border-color: var(--border-color)"></select>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="font-bold text-teal-700">Vehicle 2:</span>
+                  <select id="selectTrajVeh2" class="px-2.5 py-1.5 rounded-lg border font-mono font-medium" style="background: var(--bg-card); border-color: var(--border-color)"></select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Canvas Container -->
+            <div class="w-full relative rounded-xl border overflow-hidden p-2" style="background: var(--bg-card); border-color: var(--border-color)">
+              <canvas id="canvasSpaceTime" class="w-full"></canvas>
+            </div>
+
+            <!-- Trajectory Filters & Legend -->
+            <div class="flex flex-wrap items-center justify-between gap-3 text-xs pt-2">
+              <div class="flex items-center gap-2">
+                <span class="font-semibold text-slate-500">Filter Class:</span>
+                <button onclick="TrajectoryStudio.filterByClass('all')" class="btn-filter-class px-2.5 py-1 rounded-md border text-[11px] font-semibold bg-amber-800 text-white" data-class="all">All (126)</button>
+                <button onclick="TrajectoryStudio.filterByClass('car')" class="btn-filter-class px-2.5 py-1 rounded-md border text-[11px] font-semibold" data-class="car">Car (77)</button>
+                <button onclick="TrajectoryStudio.filterByClass('van')" class="btn-filter-class px-2.5 py-1 rounded-md border text-[11px] font-semibold" data-class="van">Van (32)</button>
+                <button onclick="TrajectoryStudio.filterByClass('bus')" class="btn-filter-class px-2.5 py-1 rounded-md border text-[11px] font-semibold" data-class="bus">Bus (29)</button>
+                <button onclick="TrajectoryStudio.filterByClass('truck')" class="btn-filter-class px-2.5 py-1 rounded-md border text-[11px] font-semibold" data-class="truck">Truck (12)</button>
+              </div>
+
+              <div class="flex items-center gap-4 text-[11px] font-mono text-slate-500">
+                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-red-600 inline-block"></span> Follower</span>
+                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-teal-600 inline-block"></span> Leader</span>
+                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-800/40 inline-block"></span> Westbound</span>
+              </div>
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- ───────────────────────────────────────────────────────────────── -->
+        <!-- PANE E: CRITICAL DISTANCE & COLLISION RISK ANALYSIS               -->
+        <!-- ───────────────────────────────────────────────────────────────── -->
+        <section id="tab-safety" class="tab-pane space-y-6 animate-fade">
+          
+          <!-- Kinematic Formula Card & Dynamic Sliders -->
+          <div class="glass-card p-4 lg:p-6 rounded-2xl border space-y-4">
+            
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b pb-4" style="border-color: var(--border-color)">
+              <div>
+                <h2 class="text-base font-bold" style="color: var(--text-primary)">
+                  Kinematic Stopping Distance &amp; Collision Safety Deficit
+                </h2>
+                <p class="text-xs text-slate-500">AASHTO / IRC:67 dynamic car-following safety distance and margin calculation</p>
+              </div>
+              <div class="p-2 px-3 rounded-lg border font-mono text-xs bg-amber-50/50 text-amber-900 border-amber-200">
+                d_safe = v_f &times; t_r + (v_f&sup2; / 2a_f) - (v_l&sup2; / 2a_l)
+              </div>
+            </div>
+
+            <!-- Parameter Sliders -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-semibold text-slate-600">Perception-Reaction Time (t_r):</span>
+                  <span id="valReactionTime" class="font-mono font-bold" style="color: var(--accent-bronze)">1.5s</span>
+                </div>
+                <input id="sliderReactionTime" type="range" min="0.5" max="2.5" step="0.1" value="1.5" class="w-full accent-amber-800 cursor-pointer">
+                <div class="flex justify-between text-[10px] text-slate-400 font-mono">
+                  <span>0.5s (Alert)</span>
+                  <span>1.5s (IRC Baseline)</span>
+                  <span>2.5s (AASHTO Complex)</span>
+                </div>
+              </div>
+
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-semibold text-slate-600">Emergency Braking Deceleration (a_f):</span>
+                  <span id="valDeceleration" class="font-mono font-bold" style="color: var(--accent-bronze)">3.4 m/s&sup2;</span>
+                </div>
+                <input id="sliderDeceleration" type="range" min="2.0" max="6.0" step="0.2" value="3.4" class="w-full accent-amber-800 cursor-pointer">
+                <div class="flex justify-between text-[10px] text-slate-400 font-mono">
+                  <span>2.0 m/s&sup2; (Wet/Slick)</span>
+                  <span>3.4 m/s&sup2; (IRC Comfort)</span>
+                  <span>6.0 m/s&sup2; (Maximum ABS)</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Annotated Conflict Video Frame Inspector -->
+          <div id="sectionSafetyInspector" class="glass-card p-4 lg:p-6 rounded-2xl border space-y-4">
+            
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b pb-4" style="border-color: var(--border-color)">
+              <div>
+                <h3 class="font-bold text-sm" style="color: var(--text-primary)">
+                  Real Annotated UAV Video Frame Inspector (Top 10 Critical Conflicts)
+                </h3>
+                <p class="text-xs text-slate-500">High-resolution drone frames showing vehicle bounding boxes, connecting vectors, and telemetry HUD</p>
+              </div>
+
+              <!-- Event Selector -->
+              <select id="selectConflictEvent" class="px-3 py-1.5 rounded-lg border text-xs font-mono font-bold" style="background: var(--bg-card); border-color: var(--border-color)"></select>
+            </div>
+
+            <!-- Annotated Image Display -->
+            <div class="relative bg-black rounded-xl overflow-hidden border" style="border-color: var(--border-color)">
+              <img id="imgConflictFrame" src="/outputs/safety_analysis/conflict_frames/conflict_rank_01_frame_0341.jpg" alt="Annotated UAV Conflict Frame" class="w-full object-contain max-h-[460px]">
+            </div>
+
+            <!-- Event Telemetry HUD Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2 text-xs">
+              <div class="p-2.5 rounded-xl border bg-black/5">
+                <div class="text-[10px] text-slate-500 uppercase font-mono">Vehicle Pair</div>
+                <div id="dispVehPair" class="font-bold truncate mt-0.5">Veh #3 -> Veh #946</div>
+              </div>
+
+              <div class="p-2.5 rounded-xl border bg-black/5">
+                <div class="text-[10px] text-slate-500 uppercase font-mono">Observed Gap (d_clear)</div>
+                <div id="dispObservedGap" class="font-bold font-mono text-sm text-red-600 mt-0.5">0.50 m</div>
+              </div>
+
+              <div class="p-2.5 rounded-xl border bg-black/5">
+                <div class="text-[10px] text-slate-500 uppercase font-mono">Safe Stopping (d_safe)</div>
+                <div id="dispSafeStopping" class="font-bold font-mono text-sm text-amber-700 mt-0.5">17.39 m</div>
+              </div>
+
+              <div class="p-2.5 rounded-xl border bg-black/5">
+                <div class="text-[10px] text-slate-500 uppercase font-mono">Deficit / Margin (&Delta;d)</div>
+                <div id="dispSafetyMargin" class="font-bold font-mono text-sm text-red-600 mt-0.5">-16.89 m</div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 text-xs">
+              <div class="p-2 rounded-lg border text-center font-mono">TTC: <b id="dispTTC" class="text-red-600">0.11s</b></div>
+              <div class="p-2 rounded-lg border text-center font-mono">DRAC: <b id="dispDRAC" class="text-red-600">19.8 m/s&sup2;</b></div>
+              <div class="p-2 rounded-lg border text-center font-mono">Closing: <b id="dispClosingSpeed">16.0 km/h</b></div>
+            </div>
+
+          </div>
+
+          <!-- Full 195 Conflict Table -->
+          <div class="glass-card p-4 rounded-2xl border space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 class="font-bold text-xs uppercase tracking-wider" style="color: var(--text-primary)">
+                  Conflict Inventory &amp; Ranking
+                </h3>
+                <span id="countConflicts" class="text-[11px] text-slate-500">195 conflict pairs registered</span>
+              </div>
+              <input id="inputSearchConflicts" type="text" placeholder="Search by vehicle ID, class or zone..." class="px-3 py-1.5 rounded-lg border text-xs w-64" style="background: var(--bg-card); border-color: var(--border-color)">
+            </div>
+
+            <div class="overflow-x-auto max-h-80">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b text-[11px] font-mono text-slate-500 uppercase" style="border-color: var(--border-color)">
+                    <th class="p-2 text-center">Rank</th>
+                    <th class="p-2">Conflict Pair</th>
+                    <th class="p-2 text-center">TTC</th>
+                    <th class="p-2 text-center">DRAC</th>
+                    <th class="p-2 text-center">Closing</th>
+                    <th class="p-2 text-center">Corridor Zone</th>
+                    <th class="p-2 text-center">Risk Tier</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyConflicts"></tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ───────────────────────────────────────────────────────────────── -->
+        <!-- PANE F: SPATIAL HOTSPOTS & CORRIDOR ANALYSIS                      -->
+        <!-- ───────────────────────────────────────────────────────────────── -->
+        <section id="tab-hotspots" class="tab-pane space-y-6 animate-fade">
+          
+          <div class="glass-card p-4 lg:p-6 rounded-2xl border space-y-4">
+            <div class="border-b pb-3" style="border-color: var(--border-color)">
+              <h2 class="text-base font-bold" style="color: var(--text-primary)">Spatial Conflict Hotspots &amp; Corridor Segmentation</h2>
+              <p class="text-xs text-slate-500">Corridor split into 20-meter longitudinal intervals across the 160m study area</p>
+            </div>
+
+            <div class="h-72 relative">
+              <canvas id="chartHotspotDist"></canvas>
+            </div>
+
+            <!-- Segment Rankings Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+              <div class="p-3.5 rounded-xl border bg-red-50/60 border-red-200 text-xs space-y-1">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-red-900">Rank #1 Bottleneck: Corridor Zone [0m, 20m]</span>
+                  <span class="font-mono font-bold px-2 py-0.5 rounded bg-red-200 text-red-900">37 Conflicts</span>
+                </div>
+                <p class="text-[11px] text-red-800">
+                  Primary vehicle merge point and lane deceleration zone. Characterized by high bus-following-van compression conflicts.
+                </p>
+              </div>
+
+              <div class="p-3.5 rounded-xl border bg-amber-50/60 border-amber-200 text-xs space-y-1">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-amber-900">Rank #2 Bottleneck: Corridor Zone [80m, 100m]</span>
+                  <span class="font-mono font-bold px-2 py-0.5 rounded bg-amber-200 text-amber-900">32 Conflicts</span>
+                </div>
+                <p class="text-[11px] text-amber-800">
+                  Secondary shockwave propagation region where vehicle queues form due to speed differential between trucks and cars.
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- ───────────────────────────────────────────────────────────────── -->
+        <!-- PANE G: AUTOMATED PROCESSING PIPELINE                             -->
+        <!-- ───────────────────────────────────────────────────────────────── -->
+        <section id="tab-pipeline" class="tab-pane space-y-6 animate-fade">
+          
+          <div class="glass-card p-4 lg:p-6 rounded-2xl border space-y-5">
+            
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b pb-4" style="border-color: var(--border-color)">
+              <div>
+                <h2 class="text-base font-bold" style="color: var(--text-primary)">Automated Processing Pipeline Studio</h2>
+                <p class="text-xs text-slate-500">Live orchestration of the 7 end-to-end video processing stages</p>
+              </div>
+              
+              <div class="flex items-center gap-2">
+                <span id="pipelineStatusBadge" class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  <i class="fa-solid fa-circle-check mr-1"></i> COMPLETED
+                </span>
+                <button id="btnRunPipeline" class="px-4 py-2 rounded-xl text-white font-bold text-xs shadow-md transition hover:opacity-95" style="background: var(--accent-bronze)">
+                  <i class="fa-solid fa-play mr-2"></i> Run Automated Pipeline
+                </button>
+              </div>
+            </div>
+
+            <!-- Parameters Bar -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+              <div>
+                <label class="font-semibold text-slate-500 block mb-1">Input Video:</label>
+                <select id="selectPipelineVideo" class="w-full px-3 py-1.5 rounded-lg border font-mono" style="background: var(--bg-card); border-color: var(--border-color)">
+                  <option value="videos/National Highway 48.mp4" selected>National Highway 48.mp4</option>
+                  <option value="videos/NH-53 sample.mp4">NH-53 sample.mp4</option>
+                </select>
+              </div>
+              <div>
+                <label class="font-semibold text-slate-500 block mb-1">Assumed Lane Width (m):</label>
+                <input id="inputPipelineLaneWidth" type="number" step="0.1" value="3.5" class="w-full px-3 py-1.5 rounded-lg border font-mono" style="background: var(--bg-card); border-color: var(--border-color)">
+              </div>
+              <div class="flex items-end pb-1.5">
+                <label class="flex items-center gap-2 cursor-pointer font-medium text-slate-600">
+                  <input id="chkSkipTracking" type="checkbox" checked class="accent-amber-800">
+                  <span>Fast Recompute (Use existing tracks if available)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="space-y-1.5 pt-2">
+              <div class="flex justify-between text-xs font-mono">
+                <span id="pipelineCurrentStageText" class="font-semibold">Pipeline finished successfully.</span>
+                <span id="pipelineProgressText" class="font-bold">100%</span>
+              </div>
+              <div class="w-full h-3 rounded-full bg-black/10 overflow-hidden">
+                <div id="pipelineProgressBar" class="h-full rounded-full transition-all duration-300" style="width: 100%; background: var(--accent-bronze)"></div>
+              </div>
+              <div class="text-[10px] text-slate-400 text-right font-mono">
+                Elapsed: <span id="pipelineElapsedText">28.4s</span>
+              </div>
+            </div>
+
+            <!-- Stages Grid -->
+            <div class="space-y-2 pt-2">
+              <h3 class="font-bold text-xs uppercase tracking-wider" style="color: var(--text-primary)">Pipeline Stages</h3>
+              <div id="pipelineStagesList" class="grid grid-cols-1 md:grid-cols-2 gap-2"></div>
+            </div>
+
+            <!-- Live Terminal Output -->
+            <div class="space-y-2 pt-2">
+              <div class="flex items-center justify-between text-xs">
+                <h3 class="font-bold text-xs uppercase tracking-wider" style="color: var(--text-primary)">
+                  Execution Terminal Logs
+                </h3>
+                <span class="text-[10px] font-mono text-slate-400">stdout / stderr</span>
+              </div>
+              <pre id="pipelineLogTerminal" class="w-full h-48 rounded-xl p-3 bg-slate-900 text-emerald-400 font-mono text-xs overflow-y-auto border border-slate-800 select-text"></pre>
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- ───────────────────────────────────────────────────────────────── -->
+        <!-- PANE H: REPORTS & EXPORTS                                         -->
+        <!-- ───────────────────────────────────────────────────────────────── -->
+        <section id="tab-reports" class="tab-pane space-y-6 animate-fade">
+          
+          <div class="glass-card p-4 lg:p-6 rounded-2xl border space-y-4">
+            <div class="border-b pb-3" style="border-color: var(--border-color)">
+              <h2 class="text-base font-bold" style="color: var(--text-primary)">Research Reports &amp; Data Exports</h2>
+              <p class="text-xs text-slate-500">Export verified trajectory datasets, surrogate safety measures, and visual summaries</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
+              
+              <div class="glass-card p-4 rounded-xl border space-y-2">
+                <div class="flex items-center gap-2 text-amber-800 font-bold text-xs">
+                  <i class="fa-solid fa-file-csv text-base"></i>
+                  <span>Processed Trajectories</span>
+                </div>
+                <p class="text-[11px] text-slate-500">22,031 metric trajectory points with smooth coordinates and speed.</p>
+                <a href="/outputs/analysis/processed_trajectories_metric.csv" download class="block text-center py-2 px-3 rounded-lg border text-xs font-semibold hover:bg-black/5 transition" style="border-color: var(--border-color)">
+                  Download CSV (3.9 MB)
+                </a>
+              </div>
+
+              <div class="glass-card p-4 rounded-xl border space-y-2">
+                <div class="flex items-center gap-2 text-red-800 font-bold text-xs">
+                  <i class="fa-solid fa-file-csv text-base"></i>
+                  <span>Ranked Conflicts</span>
+                </div>
+                <p class="text-[11px] text-slate-500">195 evaluated car-following pairs with TTC, DRAC, and severity.</p>
+                <a href="/outputs/safety_analysis/ranked_collision_conflicts.csv" download class="block text-center py-2 px-3 rounded-lg border text-xs font-semibold hover:bg-black/5 transition" style="border-color: var(--border-color)">
+                  Download CSV (35 KB)
+                </a>
+              </div>
+
+              <div class="glass-card p-4 rounded-xl border space-y-2">
+                <div class="flex items-center gap-2 text-teal-800 font-bold text-xs">
+                  <i class="fa-solid fa-file-code text-base"></i>
+                  <span>Critical Distance JSON</span>
+                </div>
+                <p class="text-[11px] text-slate-500">Kinematic stopping distances, clear gaps, and deficit margins.</p>
+                <a href="/outputs/safety_analysis/critical_distance_analysis.json" download class="block text-center py-2 px-3 rounded-lg border text-xs font-semibold hover:bg-black/5 transition" style="border-color: var(--border-color)">
+                  Download JSON (8 KB)
+                </a>
+              </div>
+
+              <div class="glass-card p-4 rounded-xl border space-y-2">
+                <div class="flex items-center gap-2 text-blue-800 font-bold text-xs">
+                  <i class="fa-solid fa-file-invoice text-base"></i>
+                  <span>Comprehensive Safety Report</span>
+                </div>
+                <p class="text-[11px] text-slate-500">Full research metrics, LWR equations, speed percentiles, and SSMs.</p>
+                <a href="/outputs/safety_analysis/comprehensive_safety_report.json" download class="block text-center py-2 px-3 rounded-lg border text-xs font-semibold hover:bg-black/5 transition" style="border-color: var(--border-color)">
+                  Download JSON (12 KB)
+                </a>
+              </div>
+
+              <div class="glass-card p-4 rounded-xl border space-y-2">
+                <div class="flex items-center gap-2 text-emerald-800 font-bold text-xs">
+                  <i class="fa-solid fa-video text-base"></i>
+                  <span>Annotated Video</span>
+                </div>
+                <p class="text-[11px] text-slate-500">High-definition video with bounding boxes, IDs, and speeds burned in.</p>
+                <a href="/outputs/National_Highway_48_annotated.mp4" download class="block text-center py-2 px-3 rounded-lg border text-xs font-semibold hover:bg-black/5 transition" style="border-color: var(--border-color)">
+                  Download MP4 (16 MB)
+                </a>
+              </div>
+
+              <div class="glass-card p-4 rounded-xl border space-y-2">
+                <div class="flex items-center gap-2 text-purple-800 font-bold text-xs">
+                  <i class="fa-solid fa-camera text-base"></i>
+                  <span>Top Conflict Frame #1</span>
+                </div>
+                <p class="text-[11px] text-slate-500">High-resolution annotated frame for Rank #1 Van vs Bus event.</p>
+                <a href="/outputs/safety_analysis/conflict_frames/conflict_rank_01_frame_0341.jpg" download class="block text-center py-2 px-3 rounded-lg border text-xs font-semibold hover:bg-black/5 transition" style="border-color: var(--border-color)">
+                  Download JPG (665 KB)
+                </a>
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+      </div>
+
+      <!-- =================================================================== -->
+      <!-- 4. PROJECT FOOTER & ATTRIBUTION (SECTION 8)                         -->
+      <!-- =================================================================== -->
+      <footer class="glass-nav border-t py-6 mt-auto text-center" style="border-color: var(--border-color)">
+        <div class="max-w-7xl mx-auto px-4 space-y-1.5">
+          
+          <div class="text-sm font-bold flex items-center justify-center gap-2" style="color: var(--text-primary)">
+            <span class="w-2 h-2 rounded-full inline-block" style="background: var(--accent-bronze)"></span>
+            <span>Developed by Eric Jose</span>
+            <span class="w-2 h-2 rounded-full inline-block" style="background: var(--accent-bronze)"></span>
+          </div>
+
+          <div class="text-xs italic font-medium" style="color: var(--text-secondary)">
+            UAV-Based Vehicle Detection &amp; Trajectory Analysis
+          </div>
+
+          <div class="text-[11px] font-mono" style="color: var(--accent-bronze)">
+            M.Tech Research Project | Civil Engineering and Geoinformatics
+          </div>
+
+          <div class="pt-2 text-[10px] text-slate-500 font-mono">
+            &copy; 2026 Eric Jose &bull; Standalone Research Platform Suite
+          </div>
+
+        </div>
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 5. APPEARANCE SETTINGS MODAL                                          -->
+  <!-- ===================================================================== -->
+  <div id="modalAppearance" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm hidden p-4">
+    <div class="glass-modal w-full max-w-md rounded-2xl border p-6 space-y-5 shadow-2xl" style="background: var(--bg-card); border-color: var(--border-color)">
+      
+      <div class="flex items-center justify-between border-b pb-3" style="border-color: var(--border-color)">
+        <div class="flex items-center gap-2 font-bold text-sm" style="color: var(--text-primary)">
+          <i class="fa-solid fa-palette text-amber-700"></i>
+          <span>Appearance &amp; Visual Settings</span>
+        </div>
+        <button id="btnCloseAppearanceModal" class="text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        
+        <!-- Theme Selection -->
+        <div class="space-y-1.5">
+          <label class="font-semibold text-slate-700 block">Color Theme:</label>
+          <select id="inputSettingTheme" class="w-full px-3 py-2 rounded-lg border font-medium cursor-pointer" style="background: var(--bg-card); border-color: var(--border-color)">
+            <option value="warm-cream">Warm Cream &amp; Beige (Default)</option>
+            <option value="clean-light">Clean Modern Light</option>
+            <option value="dark-analytics">Dark Analytics (Obsidian/Navy)</option>
+          </select>
+          <p class="text-[10px] text-slate-400">Recolors the entire studio including charts, canvas, tables, and borders.</p>
+        </div>
+
+        <!-- Liquid Glass Toggle -->
+        <div class="flex items-center justify-between p-3 rounded-xl border bg-black/5" style="border-color: var(--border-color)">
+          <div>
+            <div class="font-semibold text-slate-700">Liquid Glass Effect</div>
+            <div class="text-[10px] text-slate-500">Translucent ivory backdrop blur &amp; specular highlights</div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input id="inputSettingGlass" type="checkbox" checked class="sr-only peer">
+            <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-800"></div>
+          </label>
+        </div>
+
+        <!-- Motion Effects Toggle -->
+        <div class="flex items-center justify-between p-3 rounded-xl border bg-black/5" style="border-color: var(--border-color)">
+          <div>
+            <div class="font-semibold text-slate-700">Motion &amp; Animations</div>
+            <div class="text-[10px] text-slate-500">Fluid component entrances and hover transitions</div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input id="inputSettingMotion" type="checkbox" checked class="sr-only peer">
+            <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-800"></div>
+          </label>
+        </div>
+
+      </div>
+
+      <div class="pt-2 text-right">
+        <button onclick="document.getElementById('modalAppearance').classList.add('hidden')" class="px-4 py-1.5 rounded-lg text-white font-semibold text-xs shadow" style="background: var(--accent-bronze)">
+          Done
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Studio Scripts -->
+  <script src="/static/js/theme.js"></script>
+  <script src="/static/js/charts.js"></script>
+  <script src="/static/js/trajectory_studio.js"></script>
+  <script src="/static/js/safety_studio.js"></script>
+  <script src="/static/js/pipeline_studio.js"></script>
+  <script src="/static/js/app.js"></script>
+
+</body>
+</html>

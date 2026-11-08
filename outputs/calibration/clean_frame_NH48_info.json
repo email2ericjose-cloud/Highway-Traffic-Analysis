@@ -1,0 +1,18 @@
+{
+  "video_path": "videos/National Highway 48.mp4",
+  "width": 1608,
+  "height": 908,
+  "fps": 30.0,
+  "total_frames": 601,
+  "duration_sec": 20.033333333333335,
+  "candidate_frames": [
+    "outputs/calibration\\candidates\\frame_00100_t3.33s.png",
+    "outputs/calibration\\candidates\\frame_00200_t6.67s.png",
+    "outputs/calibration\\candidates\\frame_00300_t10.00s.png",
+    "outputs/calibration\\candidates\\frame_00400_t13.33s.png",
+    "outputs/calibration\\candidates\\frame_00500_t16.67s.png"
+  ],
+  "clean_frame_path": "outputs/calibration/clean_frame_NH48.png",
+  "clean_frame_index": 60,
+  "clean_frame_timestamp_sec": 2.0
+}

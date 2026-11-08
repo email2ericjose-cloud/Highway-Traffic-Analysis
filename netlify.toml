@@ -1,0 +1,17 @@
+[build]
+  publish = "outputs"
+
+[[redirects]]
+  from = "/"
+  to = "/cream/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/dark"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/classic"
+  to = "/dashboard/index.html"
+  status = 200

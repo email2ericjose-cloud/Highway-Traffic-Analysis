@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "uav-vehicle-analysis"
+version = "1.0.0"
+description = "UAV-Based Vehicle Detection and Trajectory Analysis – end-to-end pipeline for aerial traffic video processing."
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "Highway Traffic Analysis Team"}
+]
+keywords = [
+    "UAV", "drone", "traffic", "vehicle-detection", "trajectory",
+    "YOLOv8", "surrogate-safety", "TTC", "PET", "ITS"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "ultralytics>=8.0.0",
+    "opencv-python>=4.8.0",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "matplotlib>=3.7.0",
+    "torch>=2.0.0",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "black",
+    "ruff",
+]
+
+[project.scripts]
+# Console entry points – after install you can just type the command name
+uav-pipeline = "uav_vehicle_analysis.pipeline:main"
+
+[project.urls]
+Homepage = "https://github.com/your-org/uav-vehicle-analysis"
+Documentation = "https://github.com/your-org/uav-vehicle-analysis#readme"
+
+[tool.setuptools.packages.find]
+include = ["uav_vehicle_analysis*"]
+
+[tool.setuptools.package-data]
+uav_vehicle_analysis = ["*.json", "*.yaml"]

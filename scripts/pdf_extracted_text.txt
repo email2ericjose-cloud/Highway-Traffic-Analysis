@@ -1,0 +1,2033 @@
+
+============================================================
+PAGE 1
+============================================================
+UAV-BASED VEHICLE DETECTION AND TRAJECTORY 
+ANALYSIS FOR IMPROVING HIGHWAY TRAFFIC SAFETY 
+INTERIM PROJECT REPORT 
+Submitted by 
+ERIC JOSE 
+University Reg. No: TVE25CEGI05 
+To 
+A P J. Abdul Kalam Technological University 
+in partial fulfilment of the requirements for the award of the Degree 
+of 
+Master of Technology 
+in 
+Geoinformatics 
+ 
+DEPARTMENT OF CIVIL ENGINEERING 
+COLLEGE OF ENGINEERING TRIVANDRUM 
+OCTOBER 2026 
+
+
+============================================================
+PAGE 2
+============================================================
+DECLARATION 
+I hereby declare that the interim project report titled “UAV-Based Vehicle Detection and 
+Trajectory Analysis for Improving Highway Traffic Safety”, submitted in partial fulfilment of 
+the requirements for the award of the degree of Master of Technology at APJ Abdul Kalam 
+Technological University, Kerala, is the original work carried out by me under the supervision 
+of Prof. Aparna V. 
+I confirm that this report is the result of my independent efforts and that all sources of 
+information used have been appropriately acknowledged. I have maintained academic honesty 
+and integrity throughout the preparation of this report and have neither fabricated data nor 
+presented others’ work as my own without proper citation. 
+I understand that any breach of academic ethics, such as plagiarism or data falsification, may 
+lead to disciplinary proceedings by the institute and/or the University. I also affirm that this 
+report has not been submitted previously for the award of any degree, diploma, or other 
+qualification at any other institution. 
+ 
+Place: Trivandrum 
+ERIC JOSE 
+Date: ____ / ____ / 2026 
+
+
+============================================================
+PAGE 3
+============================================================
+i 
+DEPARTMENT OF CIVIL ENGINEERING 
+COLLEGE OF ENGINEERING TRIVANDRUM 
+ 
+CERTIFICATE 
+This is to certify that this interim project report entitled “UAV-Based Vehicle Detection and 
+Trajectory Analysis for Improving Highway Traffic Safety” is a bonafide record of the 
+interim project work presented by ERIC JOSE (University Reg. No: TVE25CEGI05) to the 
+APJ Abdul Kalam Technological University for the award of the Degree of Master of 
+Technology in Geoinformatics, Civil Engineering, during the academic year 2026-2027, 
+carried out under my guidance and supervision. This report has not been submitted to any 
+other university or institute for any purpose. 
+ 
+Internal Supervisor 
+ 
+Project Coordinators 
+ 
+ 
+ 
+ 
+Prof. Aparna V. 
+Department of Civil Engineering 
+College of Engineering, 
+Trivandrum 
+ 
+Prof. Sabu P. 
+Department of Civil Engineering 
+College of Engineering, 
+Trivandrum 
+ 
+ 
+ 
+ 
+Head of Department 
+PG Coordinator 
+Dr. Anu P. Alex 
+Department of Civil Engineering 
+Dr. Priyadarsini R. S 
+College of Engineering, 
+Trivandrum 
+Dr. Smitha M. S. 
+Department of Civil Engineering 
+College of Engineering, 
+Trivandrum 
+ 
+
+
+============================================================
+PAGE 4
+============================================================
+ii 
+ACKNOWLEDGEMENT 
+I would like to take this opportunity to express my sincere gratitude to my internal supervisor, 
+Prof. Aparna V., Assistant Professor, Department of Civil Engineering, College of Engineering 
+Trivandrum, for the valuable guidance, advice, constructive criticism, and constant 
+encouragement throughout the course of my project work. 
+I am deeply grateful to Dr. Priyadarsini R. S., Head of the Department, Department of Civil 
+Engineering, College of Engineering Trivandrum, for the keen interest, encouragement, and 
+overall support. 
+I would also like to express my profound thanks to Prof. Sabu P. and Dr. Anu P. Alex, Project 
+Coordinators, Department of Civil Engineering, College of Engineering Trivandrum, for 
+providing the necessary facilities and their sincere cooperation. 
+My heartfelt thanks extend to all the faculty members and staff of the Department of Civil 
+Engineering, as well as to my family and friends, whose continuous support and motivation 
+were instrumental in completing this endeavour. 
+Above all, I thank God Almighty and my parents, whose blessings and unwavering support 
+have been my greatest source of strength throughout this journey. 
+ 
+ERIC JOSE 
+
+
+============================================================
+PAGE 5
+============================================================
+iii 
+ABSTRACT 
+Road traffic safety assessment increasingly needs vehicle-level information on how vehicles 
+move and interact. Conventional crash records, manual surveys and fixed sensors are 
+retrospective, costly or limited in coverage. Unmanned Aerial Vehicles (UAVs) provide a 
+flexible bird’s-eye view from which vehicle trajectories can be extracted over a road section. 
+This study proposes an improved YOLO-based vehicle detection and trajectory analysis 
+framework for traffic safety monitoring, crash risk assessment and accident hotspot 
+identification on mid-block highway sections in Thiruvananthapuram. 
+A review of 17 studies shows that UAV trajectories can support time-to-collision (TTC), post-
+encroachment time (PET) and extreme-value-based crash risk estimation, but that small 
+vehicles, camera motion, mixed traffic and georeferencing remain open problems, especially 
+for Indian traffic with five vehicle classes: two-wheelers, three-wheelers, cars, light 
+commercial vehicles and heavy commercial vehicles. The methodology covers UAV flight 
+planning with DGPS ground control, CVAT annotation, baseline and small-object-optimised 
+YOLO detectors, multi-object tracking, DGPS georeferencing, vehicle count, speed and 
+density, TTC and PET, and a crash prediction model with hotspot and level-of-service analysis. 
+The governing equations are presented. 
+The work done so far is limited to a sample UAV video. A detection and tracking pipeline 
+built on a pretrained YOLOv8 model and ByteTrack produced 19,133 tracking records for 614 
+vehicles in pixel coordinates, whereas a second pretrained model failed to identify 
+motorcycles, showing that existing models are not reliable for local traffic. Trajectories in real-
+world coordinates have not been found, because ground coordinates are not yet available. The 
+UAV (DJI Neo 2) has not been purchased and the mid-block sections are yet to be selected, so 
+field data collection with DGPS control is pending. 
+Keywords: UAV, Vehicle Detection, YOLO, Small-Object Detection, Multi-Object Tracking, 
+ByteTrack, Vehicle Trajectory, DGPS Georeferencing, Time-to-Collision, Post-Encroachment 
+Time, Surrogate Safety Measures, Extreme Value Theory, Highway Traffic Safety 
+
+
+============================================================
+PAGE 6
+============================================================
+iv 
+CONTENTS 
+SL.NO TITLE 
+PAGE NO 
+ 
+List of tables 
+vi 
+ 
+List of figures 
+vii 
+1 
+INTRODUCTION 
+1 
+1.1 
+General 
+1 
+1.2 
+Need for the study 
+2 
+1.3 
+Problem statement 
+2 
+1.4 
+Objectives 
+2 
+1.5 
+Scope of the study 
+3 
+1.6 
+Significance of the study 
+3 
+2 
+LITERATURE REVIEW 
+4 
+2.1 
+Review of literature 
+4 
+2.2 
+Summary of literature 
+8 
+2.3 
+Identified research gaps 
+9 
+2.4 
+Research contribution 
+9 
+2.5 
+Conclusion of literature review 
+10 
+3 
+STUDY AREA 
+11 
+3.1 
+General 
+11 
+3.2 
+Location and extent 
+11 
+3.3 
+Selection of mid-block study sections 
+11 
+3.4 
+Relevance of the study area 
+12 
+3.5 
+Summary 
+12 
+4 
+DATA AND SOFTWARE USED 
+13 
+4.1 
+General 
+13 
+4.2 
+Data required 
+13 
+4.3 
+UAV platform 
+14 
+4.4 
+Data pre-processing 
+15 
+4.5 
+Software used 
+15 
+4.6 
+Data limitations 
+16 
+5 
+METHODOLOGY 
+17 
+5.1 
+General 
+17 
+5.2 
+Overall methodological framework 
+17 
+5.3 
+Selection of mid-block study sections 
+18 
+5.4 
+UAV flight planning and DGPS ground control 
+18 
+5.5 
+Video and image acquisition 
+19 
+5.6 
+Frame extraction, stabilisation and orthomosaic 
+19 
+5.7 
+CVAT annotation of five vehicle classes 
+20 
+
+
+============================================================
+PAGE 7
+============================================================
+v 
+5.8 
+Baseline YOLO training 
+20 
+5.9 
+Improved small-object YOLO 
+22 
+5.10 
+Multi-object tracking and trajectory extraction 
+22 
+5.11 
+DGPS georeferencing of trajectories 
+23 
+5.12 
+Count, speed and density 
+24 
+5.13 
+Surrogate safety measures: TTC and PET 
+25 
+5.14 
+Crash risk estimation and prediction 
+26 
+5.15 
+Hotspot, LOS and benchmarking 
+27 
+6 
+RESULTS AND DISCUSSION 
+29 
+6.1 
+General 
+29 
+6.2 
+Work completed till date 
+29 
+6.3 
+Pipeline testing on the sample video 
+29 
+6.4 
+Vehicle detection results 
+30 
+6.5 
+Multi-object tracking results 
+31 
+6.6 
+Tracking output in the pixel domain 
+31 
+6.7 
+Reliability check of a second pretrained model 
+32 
+6.8 
+Limitations of existing methods 
+32 
+6.9 
+Trajectory generation: current status 
+33 
+6.10 
+Discussion 
+33 
+7 
+CONCLUSIONS AND WORK PLAN 
+34 
+7.1 
+General 
+34 
+7.2 
+Summary of work done 
+34 
+7.3 
+Expected outcomes 
+34 
+7.4 
+Challenges and next steps 
+34 
+7.5 
+Schedule of work 
+35 
+7.6 
+Conclusion 
+35 
+ 
+REFERENCES 
+36 
+
+
+============================================================
+PAGE 8
+============================================================
+vi 
+LIST OF TABLES 
+TABLE NO. 
+TITLE 
+PAGE NO. 
+3.1 
+Proposed criteria for selecting mid-block sections 
+12 
+4.1 
+Data requirement and status 
+13 
+4.2 
+Specifications of DJI Neo 2 
+15 
+5.1 
+Vehicle classes used for annotation 
+20 
+5.2 
+Evaluation metrics adopted at each stage 
+28 
+6.1 
+Details of the sample video and processing environment 
+30 
+6.2 
+Structure of the tracking output table 
+31 
+6.3 
+First five records of the tracking output (pixel coordinates) 
+31 
+7.1 
+Schedule of work 
+35 
+
+
+============================================================
+PAGE 9
+============================================================
+vii 
+LIST OF FIGURES 
+FIGURE NO. TITLE 
+PAGE NO. 
+3.1 
+Study Area 
+11 
+4.1 
+DJI Neo 2 (planned UAV platform) 
+15 
+5.1 
+Methodology flowchart 
+17 
+6.1 
+Sample frame showing detection and tracking output (class, confidence and track 
+ID) 
+30 
+6.2 
+Output of the second pretrained model on a sample video (two-wheelers not 
+identified) 
+32 
+
+
+============================================================
+PAGE 10
+============================================================
+1 
+CHAPTER-1 
+INTRODUCTION 
+1.1 GENERAL 
+Road traffic safety is a major concern at highway junctions and mid-block sections, where 
+congestion, speed differences, lane changing and unsafe driving contribute to accident risk. 
+Safety studies have traditionally depended on crash records, manual observations, roadside 
+sensors and fixed cameras. Crash records are retrospective and sparse, while manual surveys 
+and fixed sensors are costly and observe only the stretch of road within their range. For 
+proactive safety analysis, the ability to reconstruct how every vehicle moves before a conflict 
+occurs is particularly valuable. 
+Unmanned Aerial Vehicles (UAVs) offer a low-cost and flexible platform for capturing high-
+resolution traffic imagery over a wide road stretch. From the bird’s-eye view of a UAV, several 
+lanes and many interacting vehicles appear in the same frame, so that vehicle trajectories can 
+be extracted rather than only point measurements such as flow or speed at a detector location. 
+Trajectories of this kind can be converted into traffic parameters such as vehicle count, speed 
+and density, and into surrogate safety measures such as time-to-collision (TTC) and post-
+encroachment time (PET). Because conflicts can be evaluated before a crash occurs, surrogate 
+safety measures reduce the dependence on long crash histories (Arun et al., 2021). 
+Deep learning object detectors such as YOLO, combined with multi-object tracking, now make 
+it possible to process long UAV videos automatically. Vehicles seen from a UAV, however, 
+occupy only a few pixels, and two-wheelers are the smallest of them. This is a serious difficulty 
+for Indian highways, where two-wheelers, three-wheelers, passenger cars, light commercial 
+vehicles and heavy vehicles share the carriageway without strict lane discipline. A detector 
+that is reliable on benchmark data may therefore not be reliable on local traffic. 
+This study proposes an improved YOLO-based detection and trajectory analysis framework 
+for traffic safety monitoring, crash risk assessment and accident hotspot identification on mid-
+block highway sections in Thiruvananthapuram. Vehicles of five classes (two-wheeler, three-
+wheeler, car, light commercial vehicle and heavy commercial vehicle) are to be detected and 
+tracked in UAV video, their trajectories georeferenced using DGPS ground control, and the 
+
+
+============================================================
+PAGE 11
+============================================================
+2 
+resulting trajectories used to derive traffic parameters, surrogate safety measures and a crash 
+prediction model. This interim report presents the literature review, objectives, data 
+requirements, methodology and the part results obtained so far from a sample UAV video. 
+1.2 NEED FOR THE STUDY 
+The increasing volume and diversity of traffic on urban highways has created a need for safety 
+assessment that does not wait for crashes to accumulate. In the absence of detailed vehicle-
+level data: 
+• 
+Manual surveys and fixed roadside sensors remain costly and limited in spatial 
+coverage 
+• 
+Interactions between neighbouring vehicles, such as lane changes and sudden braking, 
+cannot be observed 
+• 
+Detectors trained on international UAV benchmarks may fail on small two-wheelers 
+and three-wheelers in local traffic 
+• 
+Safety measures cannot be computed reliably because pixel movement has no physical 
+scale without georeferencing 
+In Thiruvananthapuram there is no locally annotated, DGPS-georeferenced UAV vehicle 
+dataset covering the five vehicle classes. The need for such a dataset, and for a detector tuned 
+to it, was confirmed by the sample-video tests described in Chapter 6, in which pretrained 
+models proved unreliable for two-wheelers. 
+1.3 PROBLEM STATEMENT 
+Existing UAV-based traffic studies rely mainly on generic detectors, optical-flow or clustering 
+methods, and rarely pair a small-object-optimised detector with trajectory-level crash risk 
+analysis. The challenge lies in detecting all five vehicle classes reliably from high-altitude 
+UAV imagery, converting the detections into georeferenced trajectories, and using those 
+trajectories to estimate surrogate safety measures and crash risk on mid-block highway sections 
+under heterogeneous Indian traffic. 
+1.4 OBJECTIVES 
+• 
+To acquire UAV imagery of highway segments and construct an annotated, DGPS-
+georeferenced vehicle dataset across five classes 
+
+
+============================================================
+PAGE 12
+============================================================
+3 
+• 
+To implement a baseline YOLO detector 
+• 
+To derive vehicle count, speed and traffic density from the detected and tracked 
+vehicles 
+• 
+To evaluate microscopic surrogate safety measures, time-to-collision and post-
+encroachment time, using UAV DGPS trajectory data 
+• 
+To develop a crash prediction model and rank the severity of potential collisions based 
+on the evaluated surrogate safety measures 
+1.5 SCOPE OF THE STUDY 
+The study is limited to mid-block road sections in Thiruvananthapuram city (the sections are 
+yet to be selected) and focuses on: 
+• 
+Five vehicle classes: two-wheeler, three-wheeler, car, LCV and HCV 
+• 
+A single UAV (DJI Neo 2, planned) operated in nadir view with DGPS ground control 
+points 
+• 
+A baseline YOLO detector and an improved small-object YOLO detector, compared 
+with Faster R-CNN and RT-DETR 
+• 
+Multi-object tracking, georeferenced trajectories, and vehicle count, speed and density 
+• 
+Time-to-collision, post-encroachment time, crash risk estimation, hotspot and level-of-
+service analysis 
+1.6 SIGNIFICANCE OF THE STUDY 
+This study contributes to: 
+• 
+A locally relevant, DGPS-georeferenced UAV vehicle dataset for Thiruvananthapuram 
+traffic 
+• 
+Evidence on how far pretrained detectors can be trusted for two-wheeler-heavy mixed 
+traffic 
+• 
+Trajectory-level safety evidence for mid-block sections, a setting that remains largely 
+unexplored 
+• 
+A reproducible workflow from UAV video to crash risk and hotspot maps that can be 
+used by highway safety managers 
+
+
+============================================================
+PAGE 13
+============================================================
+4 
+CHAPTER-2 
+LITERATURE REVIEW 
+2.1 REVIEW OF LITERATURE 
+1. Ke et al. (2017) 
+Ke et al. (2017) proposed a framework that combines a KLT tracker with k-means clustering 
+to separate traffic streams from moving-camera UAV video. From the separated streams the 
+method estimates speed, density and volume of each traffic stream in real time. The authors 
+reported accuracies of 96% for average speed and 87% for vehicle count. 
+The study represents an early stage in the development of UAV traffic analysis: it showed that 
+aerial video can supply traffic-flow parameters and not only visual records. It is relevant to the 
+present work because the count, speed and density estimates planned in this study follow the 
+same logic, and because comparison with reference counts and speeds is used for validation. 
+2. Khan et al. (2017) 
+Khan et al. (2017) reviewed the literature on UAV-based traffic studies and proposed a 
+universal guiding framework of seven components: scope definition, flight planning, flight 
+implementation, data acquisition, data processing and analysis, data interpretation, and 
+optimised traffic application. The authors treated a UAV study as a complete data-acquisition 
+system and not merely as video recording. 
+They emphasised that flight altitude, camera orientation, weather, lighting and battery limits 
+all affect the quality of the final trajectories. For the present study this means that flight 
+planning has to be designed around trajectory accuracy and not only around visual coverage. 
+3. Xu, Y. et al. (2017) 
+Xu et al. (2017) extended the Faster R-CNN framework to detect cars in low-altitude UAV 
+imagery at signalised intersections. The study demonstrated robustness to changes in 
+illumination and to in-plane rotation of vehicles, and observed that detection speed stayed 
+nearly constant regardless of the number of vehicles in a frame. 
+Faster R-CNN is a two-stage detector in which a Region Proposal Network first generates 
+candidate regions that a second stage classifies and localises. It can give strong localisation, 
+
+
+============================================================
+PAGE 14
+============================================================
+5 
+but its computational cost is a concern for long UAV videos. In the present study it serves as 
+a two-stage benchmark against which the proposed YOLO detectors are compared. 
+4. Du et al. (2018) 
+Du et al. (2018) introduced UAVDT, a vehicle-focused aerial benchmark for object detection 
+and tracking. The benchmark highlights high object density, small objects, camera motion and 
+real-time constraints as the central challenges of UAV vision. 
+The study showed that generic object detectors can lose performance under UAV-specific 
+conditions. UAVDT is valuable for pretraining and benchmarking, but it cannot substitute for 
+a locally annotated dataset, which is the reason a site-specific five-class dataset is planned in 
+this study. 
+5. Liu et al. (2020) 
+Liu et al. (2020) proposed UAV-YOLO, which modifies the YOLOv3 Darknet backbone to 
+enlarge the receptive field and enrich spatial information for small objects seen from a UAV. 
+The authors also built a dedicated UAV-viewed training dataset and a training method suited 
+to it. 
+This is one of the foundational works on small-object detection tailored to the UAV viewpoint. 
+It supports the view that the detector architecture should be adapted to the scale distribution of 
+UAV imagery and informs the small-object head proposed in this study. 
+6. Outay et al. (2020) 
+Outay et al. (2020) reviewed the applications of UAVs in road safety, traffic monitoring and 
+highway infrastructure management. The review discussed computer vision methods for traffic 
+flow analysis, risk assessment and damage assessment, and identified the barriers to wide-scale 
+UAV deployment, such as regulations, flight limitations and data processing demands, together 
+with countermeasures. 
+The review provides the overall context for the present study and confirms the analytical 
+opportunities of UAV data as well as the practical constraints, such as permissions, that must 
+be cleared before field acquisition. 
+
+
+============================================================
+PAGE 15
+============================================================
+6 
+7. Arun et al. (2021) 
+Arun et al. (2021) carried out a systematic mapping review of 549 studies on surrogate safety 
+assessment using traffic conflict techniques and developed a broad framework for it. They 
+stressed the need for clearer relationships between conflicts and crashes and for a better 
+understanding of how individual measures should be used. 
+The review shows that conflicts can be evaluated before a crash occurs, reducing dependence 
+on long crash histories. It also cautions that surrogate measures identify conflict conditions and 
+not confirmed crashes, so any crash model developed in this study is presented as estimated 
+risk. 
+8. Aharon et al. (2022) 
+Aharon et al. (2022) proposed BoT-SORT, a tracker that combines motion and appearance 
+information for data association and includes camera-motion compensation. Camera-motion 
+compensation is important for UAV video, where even a small camera movement shifts all 
+vehicles in the image. 
+A tracker that assumes a stationary camera may confuse camera motion with vehicle 
+movement. BoT-SORT is therefore one of the trackers to be compared on identity continuity 
+in this study. 
+9. Zhang et al. (2022) 
+Zhang et al. (2022) proposed ByteTrack, which associates every detection box, including low-
+confidence ones, instead of discarding them. This helps to recover partially occluded objects 
+whose detector confidence temporarily drops, a situation common for small vehicles seen from 
+above. 
+ByteTrack is the tracker used in the pipeline test on the sample video reported in Chapter 6, 
+where it maintained vehicle identities across frames. 
+10. Zong et al. (2022) 
+Zong et al. (2022) combined deep-learning-based vehicle tracking with time-to-collision 
+analysis on UAV video at road intersections. The study demonstrated UAV-derived 
+trajectories as a practical tool for proactive collision risk assessment and highlighted the 
+advantage of UAV observation in overcoming the occlusion that affects conventional tracking 
+equipment. 
+
+
+============================================================
+PAGE 16
+============================================================
+7 
+The work is a direct example of the detection–tracking–safety chain that the present study aims 
+to build, and it highlights the value of such analysis for urban road agencies and traffic safety 
+management. 
+11. Wang et al. (2023) 
+Wang et al. (2023) proposed UAV-YOLOv8, a modification of YOLOv8 for small-object 
+detection in UAV aerial photography scenarios. The work belongs to the recent line of YOLO 
+research that focuses on preserving fine spatial information for tiny targets. 
+It supports adapting the detector architecture to the scale distribution of UAV imagery instead 
+of using a generic model, which is the principle behind the improved detector of this study. 
+12. Berghaus et al. (2024) 
+Berghaus et al. (2024) built a drone-based trajectory dataset of over 8,000 trajectories on a 
+German highway, covering an off-ramp, an on-ramp and congested traffic. The pipeline used 
+YOLOv5 detection with three-dimensional camera calibration to project vehicles onto the road 
+surface, followed by post-processing of the trajectories. 
+The derived speed and acceleration were compared with independent sources, and the data 
+were applied to traffic-flow and accident-risk analysis. The study shows that calibration and 
+quality assessment must be planned as part of the measurement chain, and that a trajectory 
+dataset is a research output in its own right. 
+13. Xu, L. et al. (2024) 
+Xu et al. (2024) improved YOLOv8n with multi-scale feature fusion, conditionally 
+parameterised convolutions and the Wise-IoU loss for small-object detection in UAV images. 
+The model achieved state-of-the-art accuracy on the VisDrone benchmark for small, partially 
+occluded objects. 
+It outperformed other lightweight YOLO variants and Faster R-CNN on small-object accuracy 
+while remaining lightweight. The multi-scale fusion and Wise-IoU components are among the 
+changes to be tested in the improved detector of this study. 
+14. Zhao et al. (2024) 
+Zhao et al. (2024) proposed RT-DETR, a real-time end-to-end transformer detector that 
+removes the non-maximum suppression post-processing step. The RT-DETR-R50 model 
+
+
+============================================================
+PAGE 17
+============================================================
+8 
+reached 53.1% AP on COCO at 108 frames per second on a T4 GPU, outperforming advanced 
+YOLO detectors in both speed and accuracy. 
+RT-DETR serves, together with Faster R-CNN, as a comparison detector against which the 
+proposed detector is benchmarked. 
+15. Fonod et al. (2025) 
+Fonod et al. (2025) developed a multi-drone pipeline for extracting georeferenced vehicle 
+trajectories, demonstrated over 20 intersections. Vehicle detections were used during image 
+registration so that moving vehicles do not dominate the estimation of camera motion, and 
+trajectories were stabilised before being georeferenced through orthophoto and master-frame 
+alignment. 
+The study demonstrates that trajectory extraction and georeferencing should be considered 
+together, and it supports the DGPS georeferencing step and the frame-stabilisation approach 
+planned in this study. 
+16. Kumar and Sarkar (2025) 
+Kumar and Sarkar (2025) collected UAV-based vehicle trajectory data at the Panipat Toll Plaza 
+on NH-44, an Indian highway toll plaza with heterogeneous, lane-changing traffic. Lane-
+Changing Time-to-Collision, a surrogate safety measure, was combined with Extreme Value 
+Theory (EVT) to estimate crash risk. 
+The authors found a negative relationship between vehicle size and conflict involvement across 
+vehicle categories. The study is closely aligned with the present work because it connects UAV 
+data, heterogeneous Indian traffic, lane changing and crash-risk estimation, and it shows why 
+class-wise analysis is essential. 
+17. Maji and Ghosh (2025) 
+Maji and Ghosh (2025) extracted trajectories from high-resolution drone video at roundabouts 
+under non-lane-based mixed traffic. TTC and maximum Delta-V were used as surrogate safety 
+measures, and Extreme Value Theory was applied for conflict analysis, moving beyond simple 
+threshold-based conflict counting. 
+
+
+============================================================
+PAGE 18
+============================================================
+9 
+The study is important for Indian applications because road-user interactions do not always 
+follow strict lane-based assumptions, and it supports the use of statistical modelling of extreme 
+conflicts in this study. 
+2.2 SUMMARY OF LITERATURE 
+The reviewed studies show that UAVs are well established as a low-cost, flexible platform for 
+road safety, traffic monitoring and highway infrastructure surveys (Outay et al., 2020; Khan et 
+al., 2017). Classical tracking and clustering methods (KLT with k-means) and two-stage 
+detectors (Faster R-CNN) have both demonstrated accurate traffic parameter and vehicle-count 
+estimation from aerial video (Ke et al., 2017; Xu et al., 2017). 
+Standard YOLO detectors are fast, but recent studies (UAV-YOLO, UAV-YOLOv8, 
+YOLOv8n with multi-scale fusion) show that unmodified YOLO underperforms on small, 
+high-altitude vehicle objects, and benchmarks such as UAVDT confirm that generic detectors 
+lose accuracy under UAV conditions (Liu et al., 2020; Wang et al., 2023; Xu et al., 2024; Du 
+et al., 2018). Tracking methods such as ByteTrack and BoT-SORT address identity continuity, 
+and BoT-SORT adds camera-motion compensation that is relevant to UAV video (Zhang et 
+al., 2022; Aharon et al., 2022). 
+UAV-derived vehicle trajectories have been used successfully with surrogate safety measures 
+such as time-to-collision to assess crash and conflict risk at intersections, toll plazas and 
+roundabouts, including on Indian roads (Zong et al., 2022; Kumar and Sarkar, 2025; Maji and 
+Ghosh, 2025). Trajectory datasets and georeferencing pipelines show that calibration, post-
+processing and independent validation are essential (Berghaus et al., 2024; Fonod et al., 2025). 
+Very few studies, however, combine an improved YOLO-based detector with trajectory-level 
+crash risk and hotspot analysis for Indian mixed-traffic conditions. 
+2.3 IDENTIFIED RESEARCH GAPS 
+Based on the review of literature, the following research gaps have been identified: 
+2.3.1 Generic detectors instead of small-object-optimised YOLO 
+Existing UAV traffic studies rely mainly on generic detectors, optical-flow or clustering 
+methods rather than modern small-object-optimised YOLO architectures. 
+
+
+============================================================
+PAGE 19
+============================================================
+10 
+2.3.2 Computational cost of two-stage detectors 
+Two-stage detectors such as Faster R-CNN achieve good small-object accuracy but are 
+computationally heavy for near real-time, highway-scale processing. 
+2.3.3 Lack of evaluation on Indian mixed vehicle classes 
+Recent small-object YOLO improvements have not been evaluated on Indian mixed vehicle-
+class highway traffic (two-wheeler, three-wheeler, car, LCV, HCV). 
+2.3.4 Detection and safety analysis treated separately 
+UAV-trajectory-based crash risk and surrogate safety studies exist, but are rarely paired with 
+an improved, small-object-optimised detector or extended into hotspot and LOS-based safety 
+applications. 
+2.3.5 Mid-block sections largely unexplored 
+UAV-based, trajectory-level traffic safety analysis for mid-block sections remains largely 
+unexplored. 
+2.4 RESEARCH CONTRIBUTION 
+The present study addresses the identified gaps through the following contributions: 
+• 
+Acquisition of UAV imagery and construction of an annotated, DGPS-georeferenced 
+vehicle dataset with five vehicle classes 
+• 
+A baseline YOLO detector and an improved small-object-optimised YOLO detector, 
+benchmarked against Faster R-CNN and RT-DETR on the same local test set 
+• 
+Multi-object tracking and georeferenced trajectories from which vehicle count, speed 
+and density are derived and validated 
+• 
+Surrogate safety measures (TTC and PET) and a crash prediction model with severity 
+ranking of potential collisions 
+• 
+Accident hotspot identification and level-of-service assessment presented through GIS 
+visualisation 
+2.5 CONCLUSION OF LITERATURE REVIEW 
+The literature establishes that UAV imagery, deep-learning detection, multi-object tracking 
+and surrogate safety measures can be combined into a complete workflow from video to crash 
+
+
+============================================================
+PAGE 20
+============================================================
+11 
+risk. It also shows that small and partially occluded vehicles, camera motion, mixed traffic, 
+trajectory noise and georeferencing remain open challenges, and that local annotated data are 
+needed because models do not transfer reliably between locations. 
+The present study builds on these methods while addressing the gaps through a locally 
+annotated, DGPS-referenced five-class dataset, a small-object-optimised detector and 
+trajectory-level safety analysis. Its evaluation covers not only detector accuracy but also the 
+quality and safety relevance of the resulting trajectories. 
+
+
+============================================================
+PAGE 21
+============================================================
+12 
+CHAPTER-3 
+STUDY AREA 
+3.1 GENERAL 
+The study is set in Thiruvananthapuram city, Kerala, India. Thiruvananthapuram is the capital 
+of the state of Kerala and a rapidly urbanising centre with a mix of residential, commercial, 
+institutional and administrative land uses. This land-use mix, together with major road 
+corridors, produces a traffic stream in which two-wheelers, three-wheelers, cars, light 
+commercial vehicles and heavy commercial vehicles all share the road. This mixed vehicle 
+composition makes the city a suitable setting for testing UAV-based detection and trajectory 
+analysis under heterogeneous traffic. 
+3.2 LOCATION AND EXTENT 
+Thiruvananthapuram Corporation is located in the southern part of Kerala and serves as the 
+administrative and economic centre of the region. The corporation covers an area of 
+approximately 214.86 square kilometres, is divided into 100 wards, and is bounded by the 
+Arabian Sea on the west. Figure 3.1 shows the location of Thiruvananthapuram Corporation 
+within Kerala and India. 
+ 
+Figure 3.1: Study Area 
+
+
+============================================================
+PAGE 22
+============================================================
+13 
+3.3 SELECTION OF MID-BLOCK STUDY SECTIONS 
+The survey will be carried out on mid-block road sections of the city. No mid-block road 
+section has been shortlisted or confirmed so far. Selecting the sections is the first pending 
+step of the project, because flight planning, DGPS ground control and data collection all 
+depend on it. The sections will be chosen using the criteria in Table 3.1. 
+Table 3.1: Proposed criteria for selecting mid-block sections 
+Criterion 
+Requirement 
+Mixed traffic 
+2W, 3W, cars, LCV and HCV all present 
+Steady flow 
+Adequate, consistent volume during the survey 
+Simple geometry 
+Straight, level mid-block with clear lane markings 
+Safety relevance 
+Lane changes, speed differences and sudden braking 
+UAV feasibility 
+Open sky, safe take-off point and room for ground control points 
+Permissions 
+Aviation, institutional and privacy clearance 
+ 
+UAV data acquisition with DGPS ground control will follow once the sections are selected 
+and the UAV (DJI Neo 2) is purchased. 
+3.4 RELEVANCE OF THE STUDY AREA 
+Thiruvananthapuram is considered suitable for the study for the following reasons: 
+• 
+Mixed vehicle composition that includes all five vehicle classes of interest 
+• 
+Diverse land use, which generates varied traffic demand along the road network 
+• 
+Mid-block sections where lane changing, speed differences and sudden braking are the 
+main conflict mechanisms 
+• 
+A need for a local, georeferenced dataset because published Indian studies of this kind 
+are few 
+3.5 SUMMARY 
+The study area is Thiruvananthapuram city. The mid-block sections are still to be selected 
+using the criteria in Table 3.1, and all field activities depend on this selection. 
+
+
+============================================================
+PAGE 23
+============================================================
+14 
+CHAPTER-4 
+DATA AND SOFTWARE USED 
+4.1 GENERAL 
+The accuracy of UAV-based traffic analysis depends on the quality of the imagery, the ground 
+control and the annotations. This chapter lists all the data required to achieve the objectives, 
+together with the type, source, technical details and status of each dataset, followed by the 
+UAV platform and the software used. 
+4.2 DATA REQUIRED 
+Table 4.1 summarises the data. Datasets marked “To be collected” cannot be obtained until the 
+UAV is purchased and the mid-block sections are selected. 
+Table 4.1: Data requirement and status 
+Data 
+Type / technical details 
+Source 
+Status 
+UAV video of mid-
+block sections 
+MP4 video, nadir view; DJI Neo 
+2 records up to 4K/100 fps 
+Field survey using 
+DJI Neo 2 
+To be collected (UAV not 
+yet purchased; sections 
+not yet selected) 
+DGPS ground 
+control points 
+Point coordinates (X, Y, Z) of 
+GCPs marked on the road surface Field DGPS survey 
+To be collected 
+Annotated vehicle 
+dataset 
+Bounding boxes, 5 classes (2W, 
+3W, car, LCV, HCV), YOLO 
+format 
+CVAT annotation of 
+UAV frames 
+To be prepared after 
+acquisition 
+Road and lane 
+geometry 
+Vector shapefiles / raster 
+orthomosaic 
+Digitised from UAV 
+orthomosaic 
+To be prepared after 
+acquisition 
+Reference counts, 
+speeds, crash / 
+conflict records 
+Tabular data for validation 
+Manual counts from 
+video; local records 
+To be collected 
+Sample UAV video 
+MP4, about 1280 × 736 px, 24–
+25 FPS, 477 frames 
+Existing sample 
+video 
+Available; used for 
+pipeline testing 
+Sample tracking 
+output 
+Pixel-coordinate table (frame, 
+time, track ID, class, confidence, 
+box); 19,133 records, 614 track 
+IDs 
+YOLO + ByteTrack 
+on the sample video 
+Generated (pixel domain; 
+not georeferenced) 
+ 
+
+
+============================================================
+PAGE 24
+============================================================
+15 
+4.2.1 UAV Video 
+Nadir (top-down) video of the selected mid-block sections will be recorded with the DJI Neo 
+2 at a fixed altitude. The video is the primary input for detection, tracking and trajectory 
+extraction. Overlapping stills from the same flights are used to build the orthomosaic. 
+4.2.2 DGPS Ground Control Points 
+Ground control points (GCPs) will be marked on the road surface and surveyed with DGPS to 
+obtain their (X, Y, Z) coordinates. At least four are required to georeference the trajectories; 
+additional surveyed points are retained as independent check points. 
+4.2.3 Annotated Vehicle Dataset 
+Frames extracted from the UAV video will be labelled in CVAT with bounding boxes for the 
+five vehicle classes and exported in YOLO format. This dataset is used to train and test the 
+baseline and improved detectors. 
+4.2.4 Road and Lane Geometry 
+Lane lines, road edges and centrelines will be digitised from the orthomosaic as vector layers. 
+They are used for lane assignment, for checking projected trajectories against the lane 
+boundaries and for mapping conflicts. 
+4.2.5 Reference and Validation Data 
+Manual vehicle counts and speeds taken from the same video, and local crash or conflict 
+records where available, are used to validate the estimated count, speed, density and safety 
+measures. 
+4.2.6 Sample UAV Video 
+A sample UAV video, available before field acquisition, was used to test the detection and 
+tracking pipeline. Its use and results are described in Chapter 6. 
+4.3 UAV PLATFORM 
+The planned platform is the DJI Neo 2 (Figure 4.1). The drone has not yet been purchased, 
+so UAV data acquisition with DGPS ground control has not yet taken place. Its specifications 
+are given in Table 4.2. With a flight time of about 19 minutes per battery, several sorties will 
+
+
+============================================================
+PAGE 25
+============================================================
+16 
+be needed across peak and off-peak periods, and altitude, time and weather will be logged for 
+each sortie. 
+ 
+Figure 4.1: DJI Neo 2 (planned UAV platform) 
+Table 4.2: Specifications of DJI Neo 2 
+Parameter 
+Specification 
+Weight 
+151 g (160 g with O4 transceiver) 
+Camera 
+12 MP, 1/2-inch CMOS sensor 
+Video 
+Up to 4K/100 fps, 2-axis mechanical gimbal with EIS 
+Flight time 
+Approximately 19 minutes 
+Max transmission range 
+6 km (CE) / 10 km (FCC) 
+Obstacle sensing 
+Omnidirectional: vision, LiDAR and infrared 
+ 
+4.4 DATA PRE-PROCESSING 
+The following pre-processing steps are planned once the field data are available: 
+• 
+Extraction of every k-th frame for annotation to avoid near-duplicate images 
+• 
+Stabilisation of the video to a reference frame, and removal of blurred or unusable 
+frames 
+• 
+Generation of the orthomosaic and digitisation of road geometry 
+• 
+Export of annotations in YOLO format, with train, validation and test sets split by sortie 
+or location 
+• 
+Conversion of georeferenced coordinates to a metric projected system (for example 
+UTM zone 43N, EPSG:32643) 
+
+
+============================================================
+PAGE 26
+============================================================
+17 
+4.5 SOFTWARE USED 
+The following software and computing environment were used in the sample-video test, or are 
+planned for later stages: 
+• 
+Google Colab with an NVIDIA Tesla T4 GPU for model inference, with the video 
+stored on Google Drive 
+• 
+Python, PyTorch and OpenCV for video handling and processing 
+• 
+Ultralytics YOLO (YOLOv8) for detection, and ByteTrack for multi-object tracking 
+• 
+pandas for building the trajectory table from the tracker output 
+• 
+CVAT for annotation of the five vehicle classes (planned) 
+• 
+Photogrammetry software for the orthomosaic and GIS software for mapping, hotspot 
+and LOS analysis (to be finalised) 
+4.6 DATA LIMITATIONS 
+The study currently faces the following limitations related to data: 
+• 
+The UAV has not been purchased, so no field imagery or DGPS coordinates exist yet 
+• 
+The mid-block sections are not yet selected, so site-specific flight planning cannot be 
+finalised 
+• 
+Only a sample video is available; its results cannot be generalised to the study sections 
+• 
+Flight time of about 19 minutes per battery limits the length of each observation 
+• 
+Cars are expected to outnumber heavy vehicles in the annotated data, which will lead 
+to class imbalance 
+These limitations are to be addressed by selecting the sections first, purchasing the UAV, 
+planning sorties across peak and off-peak periods, and using class weights or oversampling 
+during training. 
+
+
+============================================================
+PAGE 27
+============================================================
+18 
+CHAPTER-5 
+METHODOLOGY 
+5.1 GENERAL 
+The methodology is a UAV-based workflow that moves from field acquisition to detection, 
+tracking, georeferenced trajectories and finally to traffic parameters and crash risk. Each step 
+uses data from the previous one, so errors in an early stage can propagate: a missed vehicle 
+breaks a trajectory, an identity switch joins two vehicles, and a coordinate error changes the 
+relative position of two vehicles and therefore their TTC or PET. Detection, tracking, 
+georeferencing and post-processing are therefore treated as one connected system. The sample-
+video work reported in Chapter 6 does not change this methodology. 
+5.2 OVERALL METHODOLOGICAL FRAMEWORK 
+The study follows the sequence of nine stages shown in Figure 5.1, preceded by the selection 
+of the mid-block sections and followed by crash prediction, hotspot and LOS analysis and 
+benchmarking against Faster R-CNN, RT-DETR and manual counts. 
+ 
+Figure 5.1: Methodology flowchart 
+The twelve methodological steps described in this chapter are: 
+
+
+============================================================
+PAGE 28
+============================================================
+19 
+1. Selection of the mid-block study sections (Section 5.3) 
+2. UAV flight planning and DGPS ground control (Section 5.4) 
+3. Video and image acquisition (Section 5.5) 
+4. Frame extraction, stabilisation and orthomosaic processing (Section 5.6) 
+5. CVAT annotation of five vehicle classes (Section 5.7) 
+6. Baseline YOLO training (Section 5.8) 
+7. Improved small-object YOLO (Section 5.9) 
+8. Multi-object tracking and trajectory extraction (Section 5.10) 
+9. DGPS georeferencing of trajectories (Section 5.11) 
+10. Count, speed and density (Section 5.12) 
+11. Surrogate safety measures: TTC and PET (Section 5.13) 
+12. Crash risk estimation and prediction, hotspot, LOS and benchmarking (Sections 5.14 
+and 5.15) 
+5.3 SELECTION OF MID-BLOCK STUDY SECTIONS 
+The flight plan can be fixed only after a section is chosen, because it depends on road width, 
+traffic density and the expected vehicle classes. Sections are shortlisted using the criteria of 
+Table 3.1 (mixed traffic, steady flow, simple geometry, safety relevance, UAV feasibility and 
+permissions). Aviation, institutional and privacy permissions are verified before any flight. 
+5.4 UAV FLIGHT PLANNING AND DGPS GROUND CONTROL 
+The flight altitude is set from the ground sampling distance (GSD), so that the smallest class, 
+the two-wheeler, still spans enough pixels. A higher flight covers more road but makes vehicles 
+smaller, while a lower flight improves object size at the cost of coverage and more perspective 
+distortion (Khan et al., 2017). The GSD is 
+ 
+Where: 
+• 
+GSD = ground distance covered by one image pixel 
+• 
+p = physical size of one sensor pixel 
+• 
+H = flight height above the road surface 
+• 
+f = focal length of the camera 
+
+
+============================================================
+PAGE 29
+============================================================
+20 
+A nadir (top-down) view is used, with the UAV hovering over the road centreline, to limit 
+perspective distortion; the view must keep every vehicle in frame long enough to form a 
+trajectory. Ground control points are marked on the road surface and surveyed with DGPS in 
+(X, Y, Z). At least four are needed; extra points are kept as independent check points. Berghaus 
+et al. (2024) and Fonod et al. (2025) show that calibration and georeferencing must be planned 
+as part of the measurement chain. 
+5.5 VIDEO AND IMAGE ACQUISITION 
+Nadir 4K video is recorded with the DJI Neo 2 at a fixed altitude, in good light and low wind. 
+A position is recorded once per frame, so the movement between two frames equals speed 
+divided by frame rate: 
+ 
+Where: 
+• 
+Δt = time between two frames (s) 
+• 
+fr = video frame rate (frames per second) 
+• 
+d = distance moved by a vehicle between two frames (m) 
+• 
+v = vehicle speed (m/s) 
+A low frame rate gives large jumps that amplify noise in speed and acceleration, whereas a 
+high frame rate raises storage and inference cost. IoU-based tracking also needs consecutive 
+boxes to overlap. For two equal boxes of length l along the direction of motion that are shifted 
+by d, the overlap is 
+ 
+For example, at 60 km/h a vehicle moves 0.67 m per frame at 25 fps and 0.33 m at 50 fps. With 
+assumed sizes, a 4.5 m car keeps about 74% overlap at 25 fps, whereas a 2 m two-wheeler 
+keeps only 50%, rising to 71% at 50 fps. Short vehicles such as two-wheelers therefore lose 
+overlap fastest, which favours a higher frame rate. Because the flight time is about 19 minutes 
+per battery, several sorties are planned across peak and off-peak periods, and altitude, time and 
+weather are logged for each. The output is raw MP4 video per sortie plus overlapping stills for 
+
+
+============================================================
+PAGE 30
+============================================================
+21 
+the orthomosaic. Ke et al. (2017) showed that speed, density and volume can be estimated from 
+aerial video. 
+5.6 FRAME EXTRACTION, STABILISATION AND ORTHOMOSAIC 
+Every k-th frame is extracted for annotation to avoid near-duplicate images, whereas detection 
+and tracking run on the complete video, as in the sample-video test. To stop camera motion 
+from being mistaken for vehicle motion, features are matched between consecutive frames, a 
+homography is estimated with RANSAC and every frame is warped to a reference frame. 
+Detected vehicles are masked out of the feature matching so that moving traffic does not bias 
+the camera-motion estimate, the approach followed by Fonod et al. (2025). 
+Overlapping stills are processed by photogrammetry (structure from motion) into an 
+orthomosaic, from which lane lines, road edges and centrelines are digitised as road geometry. 
+Blurred or unusable frames are removed before annotation. 
+5.7 CVAT ANNOTATION OF FIVE VEHICLE CLASSES 
+Five vehicle classes are used (Table 5.1). Each vehicle receives a tight bounding box, with the 
+rider included for two-wheelers, and written rules for partly visible and occluded vehicles are 
+fixed before labelling starts. Annotations are exported in YOLO format, one line per box with 
+normalised coordinates. Vehicle category matters for conflict analysis in Indian traffic (Kumar 
+and Sarkar, 2025), so class-wise labels are essential. 
+Table 5.1: Vehicle classes used for annotation 
+Code 
+Class 
+Typical examples 
+2W 
+Two-wheeler 
+Motorcycle and scooter, rider included 
+3W 
+Three-wheeler 
+Auto-rickshaw 
+Car 
+Car 
+Passenger car 
+LCV 
+Light commercial 
+vehicle 
+Small goods vehicle and van 
+HCV 
+Heavy commercial 
+vehicle 
+Truck and bus 
+ 
+
+
+============================================================
+PAGE 31
+============================================================
+22 
+The train, validation and test sets are split by sortie or location, not by random frame, because 
+neighbouring frames are near-duplicates and would leak into the test set. Cars will outnumber 
+heavy vehicles, so class weights or oversampling are used and results are reported class by 
+class. A second person re-checks a sample of the labels; agreement of boxes is measured by 
+IoU and agreement of classes by Cohen’s kappa: 
+ 
+Where: 
+• 
+po = observed agreement between the two annotators 
+• 
+pe = agreement expected by chance 
+5.8 BASELINE YOLO TRAINING 
+A YOLOv8 model (Ultralytics), the family used in the sample-video test, starts from pretrained 
+weights and is fine-tuned on the local five-class dataset. The baseline fixes the reference 
+accuracy against which the small-object model is judged on the same held-out test set. Training 
+uses an input size of around 960 px (as in the sample test, to be tuned), data augmentation and 
+early stopping on validation mAP, and all hyper-parameters are logged. The total training loss 
+is the weighted sum of a box regression loss, a classification loss and a distribution focal loss: 
+ 
+The box loss uses the complete IoU (CIoU), which adds a centre-distance term and an aspect-
+ratio term to the overlap term: 
+ 
+ 
+Where: 
+• 
+IoU = Area(A ∩ B) / Area(A ∪ B), the overlap between predicted box A and ground-
+truth box B 
+• 
+ρ = distance between the centres of the predicted box b and ground-truth box b_gt 
+• 
+c = diagonal length of the smallest box enclosing both boxes 
+• 
+w, h = width and height of the predicted box (subscript gt for the ground truth) 
+
+
+============================================================
+PAGE 32
+============================================================
+23 
+Detection performance is reported using precision, recall, F1 score and mean average precision 
+(mAP), together with the confusion matrix, class-wise AP and inference speed in frames per 
+second: 
+ 
+ 
+ 
+Where: 
+• 
+TP, FP, FN = true positives, false positives and false negatives (a detection is a true 
+positive when its IoU with a ground-truth box exceeds the chosen threshold) 
+• 
+pinterp = interpolated precision at recall r 
+• 
+N = number of classes 
+5.9 IMPROVED SMALL-OBJECT YOLO 
+A feature-map cell at stride s covers s × s pixels of the image, so a small vehicle fills only a 
+small fraction of one cell and its features are lost. For an object of width w and height h pixels, 
+the fraction of one cell it covers is 
+ 
+For example, a two-wheeler 16 px wide and 16 px tall at stride 32 fills only 256/1024 = one 
+quarter of a cell. The following changes are tested to improve small-vehicle detection: 
+• 
+A high-resolution stride-4 (P2) detection head 
+• 
+Multi-scale feature fusion 
+• 
+The Wise-IoU box loss, which weights the IoU loss according to the quality of each 
+box (Xu et al., 2024) 
+• 
+Scale and mosaic augmentation 
+An ablation is carried out in which one change is added at a time to show which one raises 
+small-vehicle AP. The baseline and improved models use the identical held-out local test set, 
+and both accuracy and speed are reported. The improved model is also compared with Faster 
+
+
+============================================================
+PAGE 33
+============================================================
+24 
+R-CNN and RT-DETR. Liu et al. (2020) enlarged the receptive field for small UAV objects, 
+and Xu et al. (2024) used multi-scale fusion and Wise-IoU on YOLOv8n. 
+5.10 MULTI-OBJECT TRACKING AND TRAJECTORY EXTRACTION 
+The tracker takes the per-frame boxes, class labels and confidence scores from the detector. A 
+Kalman filter for each vehicle predicts its box in the next frame, assuming constant velocity, 
+and is corrected by the matched detection. With state vector x (box centre, box size and their 
+velocities) and measurement z, the prediction and update steps are: 
+ 
+ 
+ 
+ 
+Where: 
+• 
+F = state transition matrix (constant-velocity model) 
+• 
+H = measurement matrix 
+• 
+Q, R = process and measurement noise covariances 
+• 
+Kk = Kalman gain at frame k 
+In ByteTrack (Zhang et al., 2022), high-confidence detections are matched to the predicted 
+tracks first, using an IoU-based cost and the Hungarian algorithm. Leftover tracks are then 
+matched to low-confidence detections, which recovers partly occluded vehicles. The cost of 
+matching track i to detection j, and the assignment, are: 
+ 
+Where: 
+• 
+Bi = predicted box of track i (from the Kalman filter) 
+• 
+Dj = detected box j 
+• 
+aij = 1 if track i is assigned to detection j, otherwise 0 (each track and detection used at 
+most once) 
+ByteTrack, DeepSORT and BoT-SORT are compared on identity continuity; BoT-SORT adds 
+camera-motion compensation (Aharon et al., 2022). Each persistent ID gives a time-ordered 
+
+
+============================================================
+PAGE 34
+============================================================
+25 
+sequence of positions. Short, fragmented or physically impossible tracks are repaired or 
+rejected, because raw tracker output should not automatically be treated as the final trajectory. 
+The anchor point of each box is its bottom centre, the point where the vehicle touches the road: 
+ 
+Where: 
+• 
+x1, y1, x2, y2 = top-left and bottom-right corners of the bounding box (pixels) 
+5.11 DGPS GEOREFERENCING OF TRAJECTORIES 
+Ground coordinates are needed before speed, distance, TTC or PET have any meaning, because 
+pixel movement depends on camera geometry. This step cannot be carried out until DGPS 
+coordinates exist. The road is treated as a plane, so an image point (u, v) maps to a ground 
+point (E, N) by a homography estimated from at least four GCPs: 
+ 
+ 
+The matrix of coefficients h has eight independent values once it is normalised, and each GCP 
+provides two equations, so four GCPs give a solution that is found by the direct linear transform 
+and least squares when more points are used. Coordinates are expressed in a metric projected 
+system (for example UTM zone 43N) and converted to latitude and longitude for GIS mapping. 
+The accuracy of the transformation is judged on independent check points and fixed road 
+features by the root mean square error: 
+ 
+Where: 
+• 
+Ei, Ni = surveyed coordinates of check point i 
+• 
+E′i, N′i = coordinates of the same point obtained from the homography 
+• 
+n = number of check points 
+Trajectories are also overlaid on the lane boundaries of the orthomosaic. A documented 
+smoothing filter (for example Savitzky–Golay or a Kalman smoother) is applied with a window 
+
+
+============================================================
+PAGE 35
+============================================================
+26 
+short enough to keep real braking events, because direct differentiation amplifies measurement 
+noise. Speed and acceleration are obtained from central differences of the smoothed positions: 
+ 
+ 
+The output is a table of ID, time, image position (u, v), ground position (E, N), class, speed, 
+acceleration and lane. Berghaus et al. (2024) used three-dimensional camera calibration and 
+checked speed against other sources, and Fonod et al. (2025) stabilised trajectories before 
+georeferencing. 
+5.12 COUNT, SPEED AND DENSITY 
+A virtual line across each lane counts every track ID once. Counts by class give the vehicle 
+composition and the flow q. The speed of each vehicle comes from the smoothed, 
+georeferenced trajectories. Space-mean speed (total distance over total time), and not the plain 
+average of spot speeds, is used in flow relations. For a section of length L observed for time T, 
+with N vehicles counted: 
+ 
+ 
+Where: 
+• 
+q = flow (vehicles per hour) 
+• 
+k = density (vehicles per km), measured directly from the UAV view 
+• 
+vs = space-mean speed 
+• 
+di, ti = distance travelled and time spent by vehicle i within the section 
+Edie’s generalised definitions use the whole space–time region L × T, with flow q equal to the 
+sum of the distances travelled divided by L × T and density k equal to the sum of the times 
+spent divided by L × T. Lane assignment and lane changes follow from the digitised lane 
+geometry. PCU factors can be applied to the counts for the level-of-service analysis. Estimates 
+are compared with manual counts and speeds from the same video using the percentage error: 
+
+
+============================================================
+PAGE 36
+============================================================
+27 
+ 
+5.13 SURROGATE SAFETY MEASURES: TTC AND PET 
+Safety measures are computed for leader–follower pairs in the same lane or path. Lane-change 
+and merging interactions are handled separately. TTC is the time to collision if both vehicles 
+keep their current speeds; it is defined only when the follower is faster than the leader. It is 
+computed every frame, and the minimum of each interaction is kept as its severity: 
+ 
+ 
+Where: 
+• 
+xL, xF = positions of the leader and the follower along the direction of travel 
+• 
+vL, vF = speeds of the leader and the follower 
+• 
+lL = length of the leader 
+For crossing or merging paths, post-encroachment time (PET) is the gap between the first 
+vehicle leaving the conflict point and the second vehicle arriving at it. As an optional 
+complement, the deceleration rate to avoid a crash (DRAC) gives the deceleration the follower 
+needs: 
+ 
+ 
+Where: 
+• 
+t1 = time at which the first road user leaves the conflict point 
+• 
+t2 = time at which the second road user arrives at the conflict point 
+No single threshold is universal, so the thresholds of TTC and PET are tested over a range and 
+the sensitivity of the conflict counts is reported. Conflicts are ranked by minimum TTC and 
+PET, by vehicle-class pair and by location. TTC should be interpreted within a defined 
+prediction horizon and not as a universal crash predictor. The measures follow Arun et al. 
+(2021), and UAV trajectories were used with TTC-type measures by Zong et al. (2022) and 
+Kumar and Sarkar (2025). 
+
+
+============================================================
+PAGE 37
+============================================================
+28 
+5.14 CRASH RISK ESTIMATION AND PREDICTION 
+Crashes are rare, so risk is estimated from the extreme tail of the conflict distribution using 
+Extreme Value Theory. Minimum TTC values are negated so that the most severe conflicts 
+become the maxima, Y = −TTCmin. In the block-maxima approach, the most severe value in 
+each time block is fitted with a Generalised Extreme Value (GEV) distribution: 
+ 
+Where: 
+• 
+μ = location parameter 
+• 
+σ = scale parameter (σ > 0) 
+• 
+ξ = shape parameter (ξ = 0 gives the Gumbel distribution) 
+As an alternative, a Generalised Pareto distribution is fitted to the values beyond a threshold u 
+(peaks over threshold): 
+ 
+The risk is the probability that the extreme passes zero (TTC ≤ 0, which is a collision), reported 
+by vehicle class and location: 
+ 
+Kumar and Sarkar (2025) combined lane-changing TTC with EVT on UAV data from an 
+Indian toll plaza, and Maji and Ghosh (2025) used EVT for mixed-traffic roundabouts. A 
+binary logistic regression model is also developed to predict conflict-prone events from the 
+speed difference, density, minimum gap and class pair, and is used only if enough conflicts are 
+observed: 
+ 
+Where: 
+• 
+β0, βj = intercept and regression coefficients 
+• 
+xj = explanatory variables (speed difference, density, minimum gap, vehicle-class pair) 
+
+
+============================================================
+PAGE 38
+============================================================
+29 
+The model is checked with a confusion matrix and the area under the ROC curve (ROC-AUC). 
+Its output is estimated risk from surrogate indicators and is not a prediction of individual 
+crashes. Conflicts are also ranked into severity classes by minimum TTC and PET to rank the 
+severity of potential collisions. 
+5.15 HOTSPOT, LOS AND BENCHMARKING 
+Each conflict keeps its (E, N) location and is stored in GIS with lane geometry, section and 
+vehicle-class attributes. Kernel density estimation shows where conflicts concentrate: 
+ 
+Where: 
+• 
+f(s) = estimated conflict density at location s 
+• 
+K = kernel function 
+• 
+h = bandwidth 
+• 
+si = location of conflict i 
+The Getis–Ord Gi* statistic tests whether the clusters are statistically significant: 
+ 
+Where: 
+• 
+xj = conflict count in spatial unit j 
+• 
+wij = spatial weight between units i and j 
+• 
+X̄, S = mean and standard deviation of x over all n units 
+Level of service (LOS) is obtained from the volume-to-capacity ratio in PCU and from density, 
+using the applicable guideline classes (to be confirmed): 
+ 
+Where: 
+• 
+nc = number of vehicles of class c 
+• 
+ec = PCU factor of class c 
+• 
+C = capacity of the section (PCU per hour) 
+
+
+============================================================
+PAGE 39
+============================================================
+30 
+Finally, the improved YOLO is benchmarked against the baseline YOLO, Faster R-CNN (Xu 
+et al., 2017) and RT-DETR (Zhao et al., 2024) on the same test set using mAP and FPS, and 
+counts and speeds are compared with manual reference values. An end-to-end check is made 
+that better detection gives better tracks, trajectories, safety measures and hotspots, with each 
+link evaluated (Table 5.2). 
+Table 5.2: Evaluation metrics adopted at each stage 
+Stage 
+Metrics 
+Detection 
+Precision, recall, F1, mAP, class-wise AP and confusion matrix, inference 
+speed (FPS) 
+Tracking 
+Identity switches, track fragmentation and continuity; MOTA and IDF1 
+Trajectory 
+Positional error (RMSE on check points), speed error, plausibility of 
+acceleration, continuity 
+Traffic parameters 
+Count error, speed error and density error against manual reference values 
+Safety 
+Agreement of TTC and PET conflicts with manually interpreted conflicts, 
+stability of risk classification, spatial consistency 
+ 
+
+
+============================================================
+PAGE 40
+============================================================
+31 
+CHAPTER-6 
+RESULTS AND DISCUSSION 
+6.1 GENERAL 
+This chapter presents the part results obtained so far. Field work has not started: the UAV has 
+not been purchased and the mid-block sections have not been selected. All results therefore 
+come from a sample UAV video that was used to test the detection and tracking pipeline before 
+field deployment. The results are discussed in order, from the work completed, through 
+detection and tracking, to the reliability check of a second pretrained model and the current 
+status of trajectory generation. 
+6.2 WORK COMPLETED TILL DATE 
+• 
+The literature on UAV-based detection, tracking, georeferencing and surrogate safety 
+measures has been reviewed (17 studies, Chapter 2) 
+• 
+The UAV platform has been identified (DJI Neo 2) but not purchased, so UAV data 
+acquisition with DGPS ground control has not yet taken place 
+• 
+The mid-block study sections have not yet been selected, so site-specific flight planning 
+and ground control cannot be finalised 
+• 
+A detection and multi-object tracking pipeline has been implemented and tested on a 
+sample video to validate the workflow 
+• 
+A second pretrained model, run on a sample video, could not identify motorcycles, 
+showing that such models are not reliable for local traffic 
+• 
+Trajectories have not been generated in real-world coordinates, because ground 
+coordinates are not yet available 
+6.3 PIPELINE TESTING ON THE SAMPLE VIDEO 
+Before field deployment, the detection and tracking pipeline was tested on a sample UAV 
+video to validate the overall workflow. About 98 representative frames were extracted for 
+visual inspection only, which is distinct from the video data used for detection and tracking: 
+the complete video was used for detection and tracking. The details are given in Table 6.1. 
+
+
+============================================================
+PAGE 41
+============================================================
+32 
+Table 6.1: Details of the sample video and processing environment 
+Item 
+Detail 
+Video resolution 
+Approximately 1280 × 736 pixels 
+Frame rate 
+Approximately 24–25 FPS 
+Total frames 
+Approximately 477 
+Frames extracted for visual 
+inspection 
+About 98 representative frames (inspection only) 
+Computing environment 
+Google Colab with NVIDIA Tesla T4 GPU 
+Software 
+Python, PyTorch, OpenCV, Ultralytics YOLO and ByteTrack 
+Data storage 
+Video stored on Google Drive 
+ 
+6.4 VEHICLE DETECTION RESULTS 
+Detection used a pretrained DroneFlow / VisDrone vehicle-detection model based on 
+YOLOv8, loaded through the Ultralytics framework. The confidence threshold was set to 0.35 
+and the inference image size to 960 pixels. The vehicle classes observed in the output were 
+cars, vans, trucks, motorcycles and buses. For every frame the output consists of the bounding 
+boxes, class labels and confidence scores of the detected vehicles. Figure 6.1 shows one frame 
+of the output, with the detections and the tracking IDs described in the next section. 
+ 
+Figure 6.1: Sample frame showing detection and tracking output (class, confidence and 
+track ID) 
+
+
+============================================================
+PAGE 42
+============================================================
+33 
+6.5 MULTI-OBJECT TRACKING RESULTS 
+Tracking used ByteTrack (bytetrack.yaml) to maintain the identity of each vehicle across 
+frames. The workflow was: vehicle detection, bounding boxes, ByteTrack, persistent vehicle 
+IDs and vehicle movement paths. About 470 of the 477 frames were successfully processed 
+during tracking, with GPU acceleration on the Tesla T4. The output video shows the bounding 
+boxes, class labels, confidence values and persistent tracking IDs for frame-by-frame vehicle 
+movement, as in Figure 6.1. 
+6.6 TRACKING OUTPUT IN THE PIXEL DOMAIN 
+The tracker output was collected into a table with one record per vehicle per frame. The table 
+holds 19,133 records and 614 unique vehicles (track IDs). Its columns are listed in Table 6.2, 
+and the first five records are shown in Table 6.3. 
+Table 6.2: Structure of the tracking output table 
+Column 
+Meaning 
+frame 
+Frame number in the video 
+time_sec 
+Time of the frame in seconds 
+track_id 
+Persistent identity assigned by ByteTrack 
+class_id 
+Class label index from the detector 
+confidence 
+Detection confidence score 
+cx, cy 
+Anchor point of the box in image pixels (cx is the box centre in x; cy equals the 
+bottom edge y2) 
+x1, y1, x2, y2 
+Top-left and bottom-right corners of the bounding box in image pixels 
+ 
+Table 6.3: First five records of the tracking output (pixel coordinates) 
+frame 
+time_sec 
+track_id 
+class_id 
+confidence 
+cx 
+cy 
+x1 
+y1 
+x2 
+y2 
+1 
+0.033367 
+1 
+0 
+0.836275 
+909.82 
+1681.20 
+831.41 
+1615.15 
+988.24 
+1681.20 
+1 
+0.033367 
+2 
+0 
+0.833226 
+535.16 
+1689.86 
+455.08 
+1617.11 
+615.24 
+1689.86 
+1 
+0.033367 
+3 
+0 
+0.824054 
+223.97 
+1595.78 
+152.48 
+1526.33 
+295.45 
+1595.78 
+1 
+0.033367 
+4 
+0 
+0.816103 
+244.28 
+1695.93 
+159.00 
+1623.77 
+329.56 
+1695.93 
+1 
+0.033367 
+5 
+0 
+0.814664 
+3071.04 
+1215.17 
+2982.47 
+1150.58 
+3159.60 
+1215.17 
+ 
+
+
+============================================================
+PAGE 43
+============================================================
+34 
+The first record corresponds to track 1 of Figure 6.1, a car detected with a confidence of 0.84. 
+The positions are image coordinates in pixels and carry no metric meaning, so they cannot be 
+reported as distance or speed until they are converted to ground coordinates (Section 6.9). 
+6.7 RELIABILITY CHECK OF A SECOND PRETRAINED MODEL 
+A second pretrained vehicle-detection model was run on a sample video to check its reliability 
+on local mixed traffic. It failed to identify motorcycles and other two-wheelers, which form a 
+dominant class in Indian traffic. In the output crop in Figure 6.2, labels appear only on the 
+larger vehicles, whereas the small two-wheelers visible in the scene are left without boxes. 
+ 
+Figure 6.2: Output of the second pretrained model on a sample video (two-wheelers not 
+identified) 
+6.8 LIMITATIONS OF EXISTING METHODS 
+The sample-video tests show that pre-existing methods, applied as they are, are not accurate 
+enough for mixed Indian traffic: 
+• 
+A second pretrained model could not identify motorcycles and other two-wheelers 
+• 
+In the output of the first model (Figure 6.1), the motorcycle detections carry confidence 
+scores of about 0.41–0.52, which are generally lower than those of cars (up to 0.84), 
+consistent with the difficulty of detecting small objects 
+• 
+The classes observed (cars, vans, trucks, motorcycles and buses) do not follow the five-
+class scheme of this study, and three-wheelers are not among them 
+• 
+Tracking worked only in the pixel domain; without ground coordinates the results have 
+no physical scale 
+These observations are visual. Quantitative accuracy will be reported only after the local 
+dataset has been annotated. They nevertheless support the need for a small-object-optimised 
+
+
+============================================================
+PAGE 44
+============================================================
+35 
+detector trained on a local five-class dataset, which is the approach proposed in the 
+methodology, and agree with the benchmark evidence that generic detectors lose accuracy 
+under UAV conditions (Du et al., 2018). 
+6.9 TRAJECTORY GENERATION: CURRENT STATUS 
+Vehicle detection and tracking in the pixel domain have been completed on the sample video. 
+Trajectories in real-world coordinates have not been found: converting the tracked IDs into 
+ground coordinates needs DGPS ground control, which is not available because the coordinates 
+have not been given. Until the geometric transformation of Section 5.11 is carried out, pixel 
+positions give only relative movement and cannot be reported as distance, speed, TTC or PET. 
+6.10 DISCUSSION 
+The sample-video work shows that the detection and tracking part of the workflow can be run 
+end to end: vehicles are detected, given persistent IDs and collected into a trajectory table. It 
+also shows where the workflow cannot yet go. The reliability check confirms the main premise 
+of the study, that an off-the-shelf detector cannot be trusted for two-wheeler-heavy traffic, so 
+the baseline and improved detectors must be trained on local data. The missing step is 
+georeferencing, which depends on the purchase of the UAV, the selection of the sections and 
+the DGPS survey. These field activities are therefore the critical path of the project, as reflected 
+in the schedule in Chapter 7. 
+
+
+============================================================
+PAGE 45
+============================================================
+36 
+CHAPTER-7 
+CONCLUSIONS AND WORK PLAN 
+7.1 GENERAL 
+This interim report presents the progress of the project on UAV-based vehicle detection and 
+trajectory analysis for improving highway traffic safety. It summarises the work completed, 
+the results from the sample video, the expected outcomes and the plan for the remaining work. 
+7.2 SUMMARY OF WORK DONE 
+• 
+A review of 17 studies on UAV traffic monitoring, vehicle detection, tracking, 
+georeferencing and surrogate safety measures was completed, and the research gaps 
+were identified 
+• 
+The objectives, data requirements and a detailed methodology covering twelve steps, 
+with the governing equations, were defined 
+• 
+A detection and tracking pipeline was tested on a sample UAV video, producing a 
+pixel-coordinate tracking table of 19,133 records for 614 tracked vehicles 
+• 
+A second pretrained model failed to identify motorcycles, which shows that existing 
+pretrained models are not reliable for local two-wheeler-heavy traffic 
+• 
+Trajectories in real-world coordinates have not been found, because ground coordinates 
+are not yet available 
+7.3 EXPECTED OUTCOMES 
+• 
+A DGPS-georeferenced, annotated UAV vehicle dataset representative of 
+Thiruvananthapuram traffic conditions 
+• 
+A small-object-optimised YOLO model with measurable accuracy gains over baseline 
+YOLO for high-altitude vehicle detection 
+• 
+Validated vehicle count, speed and traffic density estimates for the surveyed mid-block 
+sections 
+• 
+A crash prediction model derived from UAV-based trajectory data and surrogate safety 
+measures 
+• 
+Identification of accident hotspots and level-of-service assessment at the study 
+locations, presented through visualisation of the derived traffic safety metrics 
+
+
+============================================================
+PAGE 46
+============================================================
+37 
+7.4 CHALLENGES AND NEXT STEPS 
+• 
+Select and finalise the mid-block study sections in Thiruvananthapuram (not yet 
+selected), using the proposed criteria 
+• 
+Purchase the UAV (DJI Neo 2) and carry out the field survey with DGPS ground 
+control 
+• 
+Annotate vehicle classes in CVAT on imagery from the finalised locations 
+• 
+Train and evaluate the baseline and improved small-object YOLO detectors on the local 
+dataset 
+• 
+Generate trajectories from the tracking output as time-ordered coordinate sequences 
+• 
+Apply DGPS georeferencing, then compute TTC, PET and the crash prediction model 
+7.5 SCHEDULE OF WORK 
+The plan for the remaining work is given in Table 7.1. “Done” marks work carried out till date 
+and “Plan” marks work still to be done, by month. 
+Table 7.1: Schedule of work 
+Activity 
+Aug 
+Sep 
+Oct 
+Nov 
+Dec 
+Jan 
+Feb 
+Mar 
+Apr 
+Topic Finalisation 
+Done 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Literature Review 
+Done 
+Done 
+Plan 
+Plan 
+ 
+ 
+ 
+ 
+ 
+UAV Data Acquisition 
+ 
+ 
+Plan 
+Plan 
+ 
+ 
+ 
+ 
+ 
+Preprocessing 
+ 
+Done 
+Done 
+Plan 
+Plan 
+ 
+ 
+ 
+ 
+CVAT Annotation 
+ 
+Done 
+ 
+ 
+Plan 
+Plan 
+ 
+ 
+ 
+Model Training 
+ 
+Done 
+ 
+ 
+ 
+Plan 
+Plan 
+ 
+ 
+Tracking & Trajectory 
+ 
+ 
+ 
+ 
+ 
+ 
+Plan 
+Plan 
+ 
+Safety & LOS Analysis 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Plan 
+Plan 
+Report Writing & Review 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Plan 
+ 
+7.6 CONCLUSION 
+The study aims to show that UAV imagery, a small-object-optimised detector, multi-object 
+tracking and DGPS georeferencing can be combined into a reproducible workflow that gives 
+vehicle counts, speeds, densities, surrogate safety measures and crash risk for mid-block 
+
+
+============================================================
+PAGE 47
+============================================================
+38 
+highway sections in Thiruvananthapuram. The work so far confirms the need for such a 
+workflow: pretrained detectors were found unreliable for two-wheelers, and pixel-domain 
+tracking alone cannot give physical measures. 
+The remaining work depends on the field activities of selecting the sections, purchasing the 
+UAV and carrying out the DGPS survey. Once these are done, the dataset can be annotated, 
+the detectors trained and compared, and the trajectories georeferenced and analysed for safety. 
+
+
+============================================================
+PAGE 48
+============================================================
+39 
+REFERENCES 
+[1] 
+N. Aharon, R. Orfaig, and B.-Z. Bobrovsky, “BoT-SORT: Robust associations multi-
+pedestrian tracking,” arXiv preprint arXiv:2206.14651, 2022. 
+[2] 
+A. Arun, M. M. Haque, A. Bhaskar, S. Washington, and T. Sayed, “A systematic 
+mapping review of surrogate safety assessment using traffic conflict techniques,” 
+Accident Analysis & Prevention, vol. 153, p. 106016, 2021. 
+[3] 
+M. Berghaus, S. Lamberty, J. Ehlers, E. Kalló, and M. Oeser, “Vehicle trajectory dataset 
+from drone videos including off-ramp and congested traffic: Analysis of data quality, 
+traffic flow, and accident risk,” Communications in Transportation Research, vol. 4, p. 
+100133, 2024. 
+[4] 
+D. Du, Y. Qi, H. Yu, Y. Yang, K. Duan, G. Li, W. Zhang, Q. Huang, and Q. Tian, “The 
+unmanned aerial vehicle benchmark: Object detection and tracking,” in Proc. European 
+Conference on Computer Vision (ECCV) Workshops, 2018. 
+[5] 
+R. Fonod, H. Cho, H. Yeo, and N. Geroliminis, “Advanced computer vision for 
+extracting georeferenced vehicle trajectories from drone imagery,” Transportation 
+Research Part C: Emerging Technologies, vol. 178, p. 105205, 2025. 
+[6] 
+R. Ke, Z. Li, S. Kim, J. Ash, Z. Cui, and Y. Wang, “Real-time bidirectional traffic flow 
+parameter estimation from aerial videos,” IEEE Transactions on Intelligent 
+Transportation Systems, vol. 18, no. 4, pp. 890–901, 2017. 
+[7] 
+M. A. Khan, W. Ectors, T. Bellemans, D. Janssens, and G. Wets, “UAV-based traffic 
+analysis: A universal guiding framework based on literature survey,” Transportation 
+Research Procedia, vol. 22, pp. 541–550, 2017. 
+[8] 
+P. Kumar and D. R. Sarkar, “Conflict-based crash risk estimation of heterogeneous lane-
+changing traffic at the Panipat Toll Plaza (NH-44, India) using surrogate safety measures 
+and UAV-based trajectory data,” IATSS Research, vol. 49, no. 4, pp. 580–592, 2025. 
+[9] 
+M. Liu, X. Wang, A. Zhou, X. Fu, Y. Ma, and C. Piao, “UAV-YOLO: Small object 
+detection on unmanned aerial vehicle perspective,” Sensors, vol. 20, no. 8, p. 2238, 2020. 
+[10] A. Maji and I. Ghosh, “Advanced traffic conflict analysis for safety evaluation at 
+roundabouts under mixed traffic using extreme value theory,” Accident Analysis & 
+Prevention, vol. 206, p. 108108, 2025. 
+[11] F. Outay, H. A. Mengash, and M. Adnan, “Applications of unmanned aerial vehicle 
+(UAV) in road safety, traffic and highway infrastructure management: Recent advances 
+
+
+============================================================
+PAGE 49
+============================================================
+40 
+and challenges,” Transportation Research Part A: Policy and Practice, vol. 141, pp. 116–
+129, 2020. 
+[12] G. Wang, Y. Chen, P. An, H. Hong, J. Hu, and T. Huang, “UAV-YOLOv8: A small-
+object-detection model based on improved YOLOv8 for UAV aerial photography 
+scenarios,” Sensors, vol. 23, no. 16, p. 7190, 2023. 
+[13] L. Xu, Y. Zhao, Y. Zhai, L. Huang, and C. Ruan, “Small object detection in UAV images 
+based on YOLOv8n,” International Journal of Computational Intelligence Systems, vol. 
+17, p. 223, 2024. 
+[14] Y. Xu, G. Yu, Y. Wang, X. Wu, and Y. Ma, “Car detection from low-altitude UAV 
+imagery with the Faster R-CNN,” Journal of Advanced Transportation, vol. 2017, Art. 
+no. 2823617, 2017. 
+[15] Y. Zhang, P. Sun, Y. Jiang, D. Yu, F. Weng, Z. Yuan, P. Luo, W. Liu, and X. Wang, 
+“ByteTrack: Multi-object tracking by associating every detection box,” in Proc. 
+European Conference on Computer Vision (ECCV), 2022, pp. 1–21. 
+[16] Y. Zhao, W. Lv, S. Xu, J. Wei, G. Wang, Q. Dang, Y. Liu, and J. Chen, “DETRs beat 
+YOLOs on real-time object detection,” in Proc. IEEE/CVF Conference on Computer 
+Vision and Pattern Recognition (CVPR), 2024, pp. 16965–16974. 
+[17] S. Zong, S. Chen, M. Alinizzi, and S. Labi, “Leveraging UAV capabilities for vehicle 
+tracking and collision risk assessment at road intersections,” Sustainability, vol. 14, no. 
+7, p. 4034, 2022. 

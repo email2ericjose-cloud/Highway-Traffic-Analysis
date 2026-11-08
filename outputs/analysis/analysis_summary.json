@@ -1,0 +1,26 @@
+{
+  "status": "UNVERIFIED_PRELIMINARY",
+  "methodology_disclaimer": "All metric coordinates and speeds derived from assumed 3.5m lane width without surveyed ground truth. Speeds must remain strictly unverified.",
+  "total_tracked_vehicles": 160,
+  "highway_vehicles": 126,
+  "traffic_breakdown": {
+    "car": 77,
+    "van": 32,
+    "bus": 29,
+    "truck": 12,
+    "motor": 10
+  },
+  "directional_split": {
+    "Westbound (R->L)": 98,
+    "Eastbound (L->R)": 62
+  },
+  "preliminary_speed_stats_kmh": {
+    "sample_size": 48,
+    "mean": 26.59,
+    "median": 25.65,
+    "p85": 31.67,
+    "min": 16.0,
+    "max": 44.5,
+    "label": "UNVERIFIED_PRELIMINARY"
+  }
+}

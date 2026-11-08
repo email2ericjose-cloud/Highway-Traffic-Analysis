@@ -1,0 +1,9 @@
+{
+    "calibration": {
+        "assumed_lane_width_m": 3.5
+    },
+    "detection_confidence": 0.5,
+    "fps": 30.0,
+    "output_dir": "outputs",
+    "video_path": "videos\\NH-53 sample.mp4"
+}

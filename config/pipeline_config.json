@@ -1,0 +1,12 @@
+{
+  "video_path": "videos/National Highway 48.mp4",
+  "output_dir": "outputs",
+  "model_path": "models/yolov8s-visdrone.pt",
+  "detection_confidence": 0.5,
+  "calibration": {
+    "run": true,
+    "assumed_lane_width_m": 3.5
+  },
+  "run_safety_analysis": true,
+  "launch_dashboard": true
+}

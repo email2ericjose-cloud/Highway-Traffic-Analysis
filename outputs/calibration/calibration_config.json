@@ -1,0 +1,83 @@
+{
+  "calibration_status": "UNVERIFIED_PRELIMINARY",
+  "is_validated": false,
+  "assumed_lane_width_m": 3.5,
+  "assumed_road_length_m": 160.0,
+  "source_frame": "outputs/calibration/clean_frame_National_Highway_48.png",
+  "methodology": {
+    "plane_model": "Homography (Planar Perspective)",
+    "lane_width_policy": "Assumed 3.5 m (Unverified preliminary only)",
+    "speed_validation_allowed": false,
+    "disclaimer": "The assumed lane width of 3.5 m is used ONLY for preliminary analysis and is strictly UNVERIFIED. Do not calculate or report validated speeds until sufficient calibration data is verified."
+  },
+  "src_points_pixel": [
+    [
+      400.0,
+      466.0
+    ],
+    [
+      1000.0,
+      469.0
+    ],
+    [
+      1000.0,
+      502.0
+    ],
+    [
+      400.0,
+      499.0
+    ]
+  ],
+  "dst_points_meter": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      160.0,
+      0.0
+    ],
+    [
+      160.0,
+      3.5
+    ],
+    [
+      0.0,
+      3.5
+    ]
+  ],
+  "homography_matrix_H": [
+    [
+      0.26666666666666666,
+      5.4154138313988304e-17,
+      -106.6666666666667
+    ],
+    [
+      -0.00053030303030303,
+      0.10606060606060604,
+      -49.212121212121204
+    ],
+    [
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "inverse_homography_matrix_H_inv": [
+    [
+      3.7499999999999987,
+      0.0,
+      400.00000000000006
+    ],
+    [
+      0.01874999999999999,
+      9.428571428571429,
+      466.00000000000006
+    ],
+    [
+      0.0,
+      0.0,
+      1.0
+    ]
+  ]
+}

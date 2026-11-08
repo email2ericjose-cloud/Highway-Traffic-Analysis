@@ -1,0 +1,40 @@
+{
+  "version": 2,
+  "name": "uav-vehicle-analysis-cream",
+  "builds": [
+    {
+      "src": "outputs/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/cream/(.*)",
+      "dest": "/outputs/cream/$1"
+    },
+    {
+      "src": "/safety_analysis/(.*)",
+      "dest": "/outputs/safety_analysis/$1"
+    },
+    {
+      "src": "/analysis/(.*)",
+      "dest": "/outputs/analysis/$1"
+    },
+    {
+      "src": "/calibration/(.*)",
+      "dest": "/outputs/calibration/$1"
+    },
+    {
+      "src": "/",
+      "dest": "/outputs/cream/index.html"
+    },
+    {
+      "src": "/dark",
+      "dest": "/outputs/index.html"
+    },
+    {
+      "src": "/classic",
+      "dest": "/outputs/dashboard/index.html"
+    }
+  ]
+}

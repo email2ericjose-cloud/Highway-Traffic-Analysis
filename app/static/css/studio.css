@@ -1,0 +1,233 @@
+/* =================================================================== */
+/* UAV TRAFFIC STUDIO - DESIGN SYSTEM TOKENS & LIQUID GLASS ARCHITECTURE*/
+/* =================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+:root, [data-theme="warm-cream"] {
+  --bg-canvas: #F7F4ED;
+  --bg-surface: #F0E9DC;
+  --bg-card: #FFFDF8;
+  --bg-card-subtle: #E8DDCA;
+  --bg-nav: #FBF8F1;
+  --text-primary: #292820;
+  --text-secondary: #716B60;
+  --text-muted: #8E877B;
+  --border-color: #D8CBB6;
+  --border-highlight: rgba(255, 255, 255, 0.85);
+  --accent-bronze: #806342;
+  --accent-bronze-hover: #694F32;
+  --accent-teal: #397C78;
+  --accent-blue: #476783;
+  --color-success: #36734A;
+  --color-warning: #B77925;
+  --color-critical: #B43B35;
+  
+  --shadow-sm: 0 2px 4px rgba(128, 99, 66, 0.05);
+  --shadow-md: 0 8px 20px -4px rgba(128, 99, 66, 0.10);
+  --shadow-lg: 0 16px 36px -8px rgba(128, 99, 66, 0.15);
+  --chart-grid: rgba(216, 203, 182, 0.35);
+
+  --glass-surface: rgba(251, 248, 241, 0.82);
+  --glass-card: rgba(255, 253, 248, 0.85);
+  --glass-border: rgba(216, 203, 182, 0.55);
+}
+
+[data-theme="clean-light"] {
+  --bg-canvas: #F8FAFC;
+  --bg-surface: #F1F5F9;
+  --bg-card: #FFFFFF;
+  --bg-card-subtle: #E2E8F0;
+  --bg-nav: #FFFFFF;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #64748B;
+  --border-color: #CBD5E1;
+  --border-highlight: rgba(255, 255, 255, 0.95);
+  --accent-bronze: #2563EB;
+  --accent-bronze-hover: #1D4ED8;
+  --accent-teal: #0D9488;
+  --accent-blue: #3B82F6;
+  --color-success: #16A34A;
+  --color-warning: #D97706;
+  --color-critical: #DC2626;
+
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 8px 20px -4px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 16px 36px -8px rgba(0, 0, 0, 0.12);
+  --chart-grid: rgba(203, 213, 225, 0.45);
+
+  --glass-surface: rgba(241, 245, 249, 0.85);
+  --glass-card: rgba(255, 255, 255, 0.88);
+  --glass-border: rgba(203, 213, 225, 0.65);
+}
+
+[data-theme="dark-analytics"] {
+  --bg-canvas: #0B0F19;
+  --bg-surface: #111827;
+  --bg-card: #1F2937;
+  --bg-card-subtle: #374151;
+  --bg-nav: #111827;
+  --text-primary: #F9FAFB;
+  --text-secondary: #9CA3AF;
+  --text-muted: #6B7280;
+  --border-color: #374151;
+  --border-highlight: rgba(255, 255, 255, 0.12);
+  --accent-bronze: #F59E0B;
+  --accent-bronze-hover: #D97706;
+  --accent-teal: #14B8A6;
+  --accent-blue: #60A5FA;
+  --color-success: #22C55E;
+  --color-warning: #FBBF24;
+  --color-critical: #EF4444;
+
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 20px -4px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 16px 36px -8px rgba(0, 0, 0, 0.8);
+  --chart-grid: rgba(55, 65, 81, 0.45);
+
+  --glass-surface: rgba(17, 24, 39, 0.82);
+  --glass-card: rgba(31, 41, 55, 0.82);
+  --glass-border: rgba(75, 85, 99, 0.45);
+}
+
+/* Base resets & typography */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+code, pre, .font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* =================================================================== */
+/* 2. LIQUID GLASS CONDITIONAL STYLING (ON / OFF)                      */
+/* =================================================================== */
+[data-glass="true"] .glass-nav {
+  background: var(--glass-surface) !important;
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border-color: var(--glass-border) !important;
+  box-shadow: var(--shadow-sm);
+}
+
+[data-glass="true"] .glass-card {
+  background: var(--glass-card) !important;
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  border-color: var(--glass-border) !important;
+  box-shadow: inset 0 1px 1px 0 var(--border-highlight), var(--shadow-md);
+}
+
+[data-glass="true"] .glass-pill {
+  background: var(--glass-surface) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-color: var(--glass-border) !important;
+}
+
+[data-glass="true"] .glass-modal {
+  background: var(--glass-card) !important;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-color: var(--glass-border) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), inset 0 1px 1px 0 var(--border-highlight);
+}
+
+/* SOLID SURFACES (When Glass is OFF) */
+[data-glass="false"] .glass-nav {
+  background: var(--bg-surface) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-color: var(--border-color) !important;
+  box-shadow: var(--shadow-sm);
+}
+
+[data-glass="false"] .glass-card {
+  background: var(--bg-card) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-color: var(--border-color) !important;
+  box-shadow: var(--shadow-md);
+}
+
+[data-glass="false"] .glass-pill {
+  background: var(--bg-card-subtle) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-color: var(--border-color) !important;
+}
+
+[data-glass="false"] .glass-modal {
+  background: var(--bg-card) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-color: var(--border-color) !important;
+  box-shadow: var(--shadow-lg);
+}
+
+/* =================================================================== */
+/* 3. MOTION & ANIMATION STYLING                                       */
+/* =================================================================== */
+[data-motion="true"] .animate-fade {
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+[data-motion="true"] .interactive-card {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+[data-motion="true"] .interactive-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+[data-motion="true"] .nav-link {
+  transition: all 0.2s ease;
+}
+
+[data-motion="false"] * {
+  animation: none !important;
+  transition: none !important;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Tab panes */
+.tab-pane {
+  display: none;
+}
+.tab-pane.active {
+  display: block;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-canvas);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}

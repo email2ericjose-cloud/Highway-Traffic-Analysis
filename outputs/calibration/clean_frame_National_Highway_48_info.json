@@ -1,0 +1,11 @@
+{
+  "video_path": "videos/National Highway 48.mp4",
+  "width": 1608,
+  "height": 908,
+  "fps": 30.0,
+  "total_frames": 601,
+  "duration_sec": 20.033333333333335,
+  "clean_frame_path": "outputs/calibration/clean_frame_National_Highway_48.png",
+  "clean_frame_index": 60,
+  "clean_frame_timestamp_sec": 2.0
+}
